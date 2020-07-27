@@ -11,5 +11,9 @@ router.get('/register', (req, res) => {
 
 router.post('/login', AuthController.login);
 router.post('/register', AuthController.register);
+// router.post('/register', (req, res) => {
+// 	console.log("hehe");
+// 	// res.send("hehehe");
+// });
 
 module.exports = router;
