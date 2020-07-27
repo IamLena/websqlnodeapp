@@ -19,6 +19,17 @@ db.connect((err) => {
 	}
 });
 
+f_redirect = (res, type) => {
+	//redirect to write router.get
+	if (type == 1)
+		return (res.send("designer page"));
+	if (type == 2)
+		return (res.send("content manager page"));
+	if (type == 3)
+		return (res.send("graphic product artist page"));
+	return(res.render("/"));
+}
+
 exports.login = async (req, res) => {
 	const {login, password} = req.body;
 
@@ -30,7 +41,7 @@ exports.login = async (req, res) => {
 	}
 	else
 	{
-		db.query("SELECT login, password FROM users WHERE login = ?", login, async (err, results) => {
+		db.query("SELECT type, password FROM users WHERE login = ?", login, async (err, results) => {
 			if (err)
 				throw error;
 			else if (results.length == 0)
@@ -38,7 +49,8 @@ exports.login = async (req, res) => {
 			else if (!(await bcrypt.compare(password, results[0].password)))
 				return res.status(402).render('login', {message : "wrong password"});
 			else
-				return res.redirect("/index");
+				return f_redirect(res, results[0].type);
+				// return res.redirect("/");
 		})
 	}
 }
@@ -80,9 +92,10 @@ exports.register = (req, res) => {
 					throw error;
 				else
 				{
-					return res.render('register', {
-						message: 'user is registered'
-					});
+					// return res.render('register', {
+					// 	message: 'user is registered'
+					// });
+					return f_redirect(res, position);
 				}
 			});
 		}
