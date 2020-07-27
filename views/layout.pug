@@ -1,9 +1,12 @@
 doctype html
-html(lang="en")
+html
     head
-        title=title
-        include includes/styles
+        title
     body
-        .page-wrapper
-            //- include includes/header
-            block content
+        header
+            p This is header
+            hr
+        block content
+        footer
+            hr
+            p This is footer

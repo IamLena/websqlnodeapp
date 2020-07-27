@@ -1,0 +1,13 @@
+extends layout
+block content
+	h1 login form
+	form(action="/auth/login", method="post")
+		div
+			label(for="inputlogin") login
+			input(id="inputlogin", placeholder="Enter login", name="login")
+		div
+			label(for="inputpassword") password
+			input(type="password", id="inputpassword", placeholder="Enter password", name="password")
+		button(type="submit") long in
+	if message
+		p #{message}

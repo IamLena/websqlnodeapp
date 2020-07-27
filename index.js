@@ -16,8 +16,8 @@ app.use(express.static(PublicDir));
 app.set('views', ViewsDir);
 app.set('view engine', 'pug');
 
-// app.use('/', require('./routes/pages'));
-// app.use('/auth', require('./routes/auth'));
+app.use('/', require('./routes/pages'));
+app.use('/auth', require('./routes/auth'));
 
 const db = mysql.createConnection({
 	host: process.env.DATABASE_HOST,
