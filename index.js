@@ -18,6 +18,7 @@ app.set('view engine', 'pug');
 
 app.use('/', require('./routes/pages'));
 app.use('/auth', require('./routes/auth'));
+app.use('/designer', require('./routes/designer'));
 
 const db = mysql.createConnection({
 	host: process.env.DATABASE_HOST,

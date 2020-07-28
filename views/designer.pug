@@ -1,0 +1,9 @@
+extends layout
+block content
+	h1 DESIGNER
+	img(src='/anon.jpg')
+	p #{login}
+	p #{name}
+	p #{lan_geo}
+	a(href=`mailto:${email}`) send email
+	br
