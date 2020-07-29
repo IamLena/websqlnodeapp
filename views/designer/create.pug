@@ -31,17 +31,17 @@ block content
 
 		label(for="lan_geo") Chose language:
 		select(name="lan_geo", id="lan_geo")
-		//- 	each lan in lans
-		//- 		option(value=lan.lan_geo) #{lan.language} (#{lan.country})
-
+			each lan in m_lans
+				option(value=lan.lan_geo) #{lan.language} (#{lan.country})
+		br
 		label(for="inputos") Chose os:
 		select(name="os", id="inputos")
-		//- 	each m_os in m_oss
-		//- 		option(value=m_os.nickname) #{m_os.name}
-
+			each m_os in m_oss
+				option(value=m_os.nickname) #{m_os.name}
+		br
 		label(for="inputdevice") Chose device:
 		select(name="device", id="inputdevice")
-			//- each m_dev in m_devices
-			//- 	option(value=m_dev.nickname) #{m_dev.name}
-
+			each m_dev in m_devices
+				option(value=m_dev.nickname) #{m_dev.name}
+		br
 		button(type='submit') create psd record

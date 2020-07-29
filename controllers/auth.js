@@ -21,7 +21,7 @@ db.connect((err) => {
 
 f_redirect = (res, user) => {
 	if (user.type == 1)
-		return res.redirect(`/designer/?login=${user.login}/?authorized=${true}`);
+		return res.redirect(`/designer/?login=${user.login}&authorized=${true}`);
 	if (user.type == 2)
 		return (res.send("content manager page"));
 	if (user.type == 3)
@@ -49,8 +49,6 @@ exports.login = async (req, res) => {
 				return res.status(402).render('login', {message : "wrong password"});
 			else
 				return f_redirect(res, results[0]);
-				// return res.redirect("/designer/?login=", login);
-
 		})
 	}
 }
@@ -95,7 +93,13 @@ exports.register = (req, res) => {
 					// return res.render('register', {
 					// 	message: 'user is registered'
 					// });
-					return f_redirect(res, position);
+					return f_redirect(res, {
+						login: login,
+						name: fullname,
+						email: email,
+						lan_geo: lan_geo,
+						type: position,
+					});
 				}
 			});
 		}
