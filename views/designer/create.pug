@@ -1,0 +1,47 @@
+extends ../layout
+block content
+	form(action="/designer/create", method='post')
+		div
+			label(for="inputcode") code
+			input(id="inputcode", placeholder="enter code", name="code")
+		div
+			label(for="inputcontent") content
+			input(id="inputcontent", placeholder="enter content", name="content")
+		div
+			label(for="inputheight") height
+			input(id="inputheight", placeholder="enter height", name="height")
+		div
+			label(for="inputwidth") width
+			input(id="inputwidth", placeholder="enter width", name="width")
+		div
+			label(for="inputppi") ppi
+			input(id="inputppi", placeholder="enter ppi", name="ppi")
+		div
+			label(for="inputgrab") grab
+			input(type="file" id="inputgrab", name="grab")
+		div
+			label(for="inputpreview") preview
+			input(type="file" id="inputpreview", name="preview")
+		div
+			label(for="inputpsd") psd
+			input(type="file" id="inputpsd", name="psd")
+		div
+			label(for="inputtif") tif
+			input(type="file" id="inputtif", name="tif")
+
+		label(for="lan_geo") Chose language:
+		select(name="lan_geo", id="lan_geo")
+		//- 	each lan in lans
+		//- 		option(value=lan.lan_geo) #{lan.language} (#{lan.country})
+
+		label(for="inputos") Chose os:
+		select(name="os", id="inputos")
+		//- 	each m_os in m_oss
+		//- 		option(value=m_os.nickname) #{m_os.name}
+
+		label(for="inputdevice") Chose device:
+		select(name="device", id="inputdevice")
+			//- each m_dev in m_devices
+			//- 	option(value=m_dev.nickname) #{m_dev.name}
+
+		button(type='submit') create psd record

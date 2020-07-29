@@ -1,0 +1,16 @@
+extends ../layout
+block content
+	h1 DESIGNER
+	img(src='/anon.jpg')
+	p #{login}
+	p #{name}
+	p #{lan_geo}
+	a(href=`mailto:${email}`) send email
+	br
+	if authorized
+		if `${authorized}` == `true`
+			//- a(href='/designer/create') create
+			//- br
+			//- a(href='/designer/localize') localize
+			//- br
+			//- a(href='/designer/modify') modify

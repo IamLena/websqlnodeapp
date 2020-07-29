@@ -23,24 +23,40 @@ db.connect((err) => {
 });
 
 router.get('/', (req, res) => {
-	res.render('designer', {
-		login : "nologin",
-		name : "noname",
-		lan_geo : "nogeo",
-		email : "",
-	});
+	login = req.query.login;
+	if (login) {
+		db.query("SELECT * FROM users WHERE login = ?", login, async (err, results) => {
+			if (err)
+				throw err;
+			authorized = req.query.authorized;
+			res.render('designer/designer', {
+				login : results[0].login,
+				name : results[0].name,
+				lan_geo : results[0].lan_geo,
+				email : results[0].email,
+				authorized : authorized,
+			});
+		});
+	}
+	else {
+		res.render('designer/designer', {
+			login : "nologin",
+			name : "noname",
+			lan_geo : "nogeo",
+			email : "",
+		});
+	}
 });
 
-router.get('/:login', (req, res) => {
-	db.query("SELECT * FROM users WHERE login = ?", req.params.login, async (err, results) => {
-		if (err)
+router.get('/create/', (req, res) => {
+	const os = req.query.os;
+	const device = req.query.device;
+
+	db.query("select * from os ", async (err, results) => {
+		if(err)
 			throw err;
-		res.render('designer', {
-			login : results[0].login,
-			name : results[0].name,
-			lan_geo : results[0].lan_geo,
-			email : results[0].email,
-		});
+		else
+			res.render("designer/create");
 	});
 });
 
