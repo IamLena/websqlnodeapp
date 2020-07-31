@@ -1,6 +1,6 @@
 extends ../layout
 block content
-	form(action="/designer/create", method='post')
+	form(action="/designer/create", method='post', enctype="multipart/form-data")
 		div
 			label(for="inputcode") code
 			input(id="inputcode", placeholder="enter code", name="code")
@@ -29,17 +29,18 @@ block content
 			label(for="inputtif") tif
 			input(type="file" id="inputtif", name="tif")
 
-		label(for="lan_geo") Chose language:
+		label(for="lan_geo") Choose language:
 		select(name="lan_geo", id="lan_geo")
+			option(value=undefined)
 			each lan in m_lans
 				option(value=lan.lan_geo) #{lan.language} (#{lan.country})
 		br
-		label(for="inputos") Chose os:
+		label(for="inputos") Choose os:
 		select(name="os", id="inputos")
 			each m_os in m_oss
 				option(value=m_os.nickname) #{m_os.name}
 		br
-		label(for="inputdevice") Chose device:
+		label(for="inputdevice") Choose device:
 		select(name="device", id="inputdevice")
 			each m_dev in m_devices
 				option(value=m_dev.nickname) #{m_dev.name}

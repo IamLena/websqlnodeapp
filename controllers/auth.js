@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 const bcrypt = require('bcryptjs')
 
-//create connection
 const db = mysql.createConnection({
 	host		: process.env.DATABASE_HOST,
 	user		: process.env.DATABASE_USER,
@@ -9,11 +8,8 @@ const db = mysql.createConnection({
 	database	: process.env.DATABASE_NAME
 });
 
-//connect
 db.connect((err) => {
-	if (err) {
-		throw err;
-	}
+	if (err) throw err;
 	else {
 		console.log('mysql connected auth');
 	}
@@ -90,9 +86,6 @@ exports.register = (req, res) => {
 					throw error;
 				else
 				{
-					// return res.render('register', {
-					// 	message: 'user is registered'
-					// });
 					return f_redirect(res, {
 						login: login,
 						name: fullname,
@@ -103,6 +96,5 @@ exports.register = (req, res) => {
 				}
 			});
 		}
-	})
-
+	});
 }

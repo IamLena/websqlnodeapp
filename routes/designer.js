@@ -1,6 +1,6 @@
 const express = require('express');
-const { render, compileClientWithDependenciesTracked } = require('pug');
 const router = express.Router();
+const DesignerController = require("../controllers/designer")
 
 const mysql = require('mysql');
 
@@ -22,31 +22,9 @@ db.connect((err) => {
 	}
 });
 
-router.get('/', (req, res) => {
-	login = req.query.login;
-	if (login) {
-		db.query("SELECT * FROM users WHERE login = ?", login, async (err, results) => {
-			if (err)
-				throw err;
-			authorized = req.query.authorized;
-			res.render('designer/designer', {
-				login : results[0].login,
-				name : results[0].name,
-				lan_geo : results[0].lan_geo,
-				email : results[0].email,
-				authorized : authorized,
-			});
-		});
-	}
-	else {
-		res.render('designer/designer', {
-			login : "nologin",
-			name : "noname",
-			lan_geo : "nogeo",
-			email : "",
-		});
-	}
-});
+router.get('/', DesignerController.personalPage);
+// router.get('/create', DesignerController.GETCreateRecord);
+router.post('/create', DesignerController.POSTCreateRecord);
 
 router.get('/create', (req, res) => {
 	let {code, content, height, width, ppi, grab, preview, psd, tif, lan_geo, os, device, login} = req.query;
@@ -96,10 +74,10 @@ router.get('/create', (req, res) => {
 	});
 });
 
-router.post('/create', (req, res) => {
-	// login
-	let {code, content, height, width, ppi, grab, preview, psd, tif, lan_geo, os, device} = req.body;
-	res.redirect(`/designer/create/?code=${code}&content=${content}&geight=${height}&width=${width}&ppi=${ppi}&lan_geo=${lan_geo}&os=${os}&device=${device}`);
-});
+// router.post('/create', (req, res) => {
+// 	// login
+// 	let {code, content, height, width, ppi, grab, preview, psd, tif, lan_geo, os, device} = req.body;
+// 	res.redirect(`/designer/create/?code=${code}&content=${content}&geight=${height}&width=${width}&ppi=${ppi}&lan_geo=${lan_geo}&os=${os}&device=${device}`);
+// });
 
 module.exports = router;
