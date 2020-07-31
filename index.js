@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const path = require('path');
+const upload = require('express-fileupload');
 
 const PublicDir = path.join((__dirname, 'public'));
 const ViewsDir = path.join((__dirname, 'views'));
@@ -12,6 +13,7 @@ const app = express();
 app.use(express.urlencoded({extended : false}));
 app.use(express.json());
 app.use(express.static(PublicDir));
+app.use(upload());
 
 app.set('views', ViewsDir);
 app.set('view engine', 'pug');
@@ -19,6 +21,7 @@ app.set('view engine', 'pug');
 app.use('/', require('./routes/pages'));
 app.use('/auth', require('./routes/auth'));
 app.use('/designer', require('./routes/designer'));
+app.use('/file', require('./routes/file'));
 
 const db = mysql.createConnection({
 	host: process.env.DATABASE_HOST,
