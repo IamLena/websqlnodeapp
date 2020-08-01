@@ -9,7 +9,7 @@ block content
 	br
 	if authorized
 		if `${authorized}` == `true`
-			a(href=`/designer/create/?login=${login}`) create
+			a(href=`/designer/create/?login=${login}&lan_geo=${lan_geo}`) create
 			br
 			a(href='/designer/localize') localize
 			br
