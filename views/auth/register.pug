@@ -1,38 +1,35 @@
 extends ../layout
 block content
-	h1 register form
-	form(action="/auth/register", method="post")
-		div
-			label(for="inputlogin") login
-			input(id="inputlogin", placeholder="Enter login", name="login")
-		div
-			label(for="inputfullname") fullname
-			input(id="inputfullname", placeholder="Enter fullname", name="fullname")
-		div
-			label(for="inputemail") email
-			input(type="email", id="inputemail", placeholder="Enter email", name="email")
-		div
-			label choose your position
+	div.container.text-center.registerform
+		h1 Please fill in the form
+		form.text-center(action="/auth/register", method="post")
+			div.custom-control.custom-radio.custom-control-inline
+				input.custom-control-input(type="radio" id="designer" name="position", value=1)
+				label.custom-control-label(for="designer") designer
+			div.custom-control.custom-radio.custom-control-inline
+				input.custom-control-input(type="radio" id="manager" name="position", value=2)
+				label.custom-control-label(for="manager") content manager
+			div.custom-control.custom-radio.custom-control-inline
+				input.custom-control-input(type="radio" id="ga" name="position", value=3)
+				label.custom-control-label(for="ga") graphic artist
+
+			div.input-group.mb-3
+				div.input-group-prepend
+					label.input-group-text(for="lan_geo") Language
+				select.custom-select(id="lan_geo")
+					each lan in lans
+						option(value=lan.lan_geo) #{lan.language} (#{lan.country})
+
 			div
-				label(for="designer") designer
-				input(type="radio", id="designer" name="position" value=1)
+				input.form-control(id="inputlogin", placeholder="Enter login", name="login")
 			div
-				label(for="cm") content manager
-				input(type="radio", id="cm" name="position" value=2)
+				input.form-control(id="inputfullname", placeholder="Enter fullname", name="fullname")
 			div
-				label(for="ga") graphic artist
-				input(type="radio", id="ga" name="position" value=3)
-		label(for="lan_geo") Chose language:
-		select(name="lan_geo", id="lan_geo")
-			each lan in lans
-				option(value=lan.lan_geo) #{lan.language} (#{lan.country})
-		br
-		div
-			label(for="inputpassword") password
-			input(type="password", id="inputpassword", placeholder="Enter password", name="password")
-		div
-			label(for="inputconfpassword") confirmed password
-			input(type="password", id="inputconfpassword", placeholder="Confirm password", name="confirmedPassword")
-		button(type="submit") register
-	if message
-		p #{message}
+				input.form-control(type="email", id="inputemail", placeholder="Enter email", name="email")
+			div
+				input.form-control(type="password", id="inputpassword", placeholder="Enter password", name="password")
+			div
+				input.form-control(type="password", id="inputconfpassword", placeholder="Confirm password", name="confirmedPassword")
+			button.btn.btn-block.btn-success(type="submit") register
+		if (message)
+			p.text-warning #{message}
