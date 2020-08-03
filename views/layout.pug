@@ -1,12 +1,25 @@
 doctype html
-html
-    head
-        title
-    body
-        header
-            p This is header
-            hr
-        block content
-        footer
-            hr
-            p This is footer
+head
+  meta(charset='utf-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+  title WebApp &middot; Luchina
+  link(rel='canonical' href='https://getbootstrap.com/docs/4.4/examples/cover/')
+
+  link(href='css/bootstrap.min.css' rel='stylesheet' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous')
+  link(rel='icon' href='/images/coala.png' sizes='32x32' type='image/png')
+  meta(name='theme-color' content='#563d7c')
+  link(href='css/cover.css' rel='stylesheet')
+.cover-container.d-flex.w-100.h-100.p-3.mx-auto.flex-column
+  header.masthead.mb-auto
+    .inner
+      h3.masthead-brand Cover
+      nav.nav.nav-masthead.justify-content-center
+        a.nav-link.active(href='#') Home
+        a.nav-link(href='#') Features
+        a.nav-link(href='#') Contact
+  block content
+  footer.text-center.mastfoot.mt-auto
+    .inner
+      p
+        | made by
+        a(href='https://github.com/IamLena/websqlnodeapp')  Luchina Lena
