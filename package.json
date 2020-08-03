@@ -20,12 +20,10 @@
   "homepage": "https://github.com/IamLena/websqlnodeapp#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "csv-parser": "^2.3.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "fast-csv": "^4.3.1",
+    "express-session": "^1.17.1",
     "fs": "0.0.1-security",
-    "jade-bootstrap": "^1.0.14",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.4",
     "pug": "^3.0.0"

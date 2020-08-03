@@ -1,0 +1,12 @@
+extends ../layout
+block content
+	div.container.text-center.loginform
+		h1 Please log in
+		form.text-center(action="/auth/login", method="post")
+			div.form-group
+				input.form-control(id="inputlogin", placeholder="Enter login", name="login")
+			div.form-group
+				input.form-control(type="password", id="inputpassword", placeholder="Enter password", name="password")
+			button.btn.btn-block.btn-success(type="submit") log in
+		if (message)
+			p.text-warning #{message}

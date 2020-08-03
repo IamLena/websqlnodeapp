@@ -1,8 +1,6 @@
 const express = require('express');
-const router = express.Router();
-const AuthController = require('../controllers/auth')
 const mysql = require('mysql');
-//create connection
+
 const db = mysql.createConnection({
 	host		: process.env.DATABASE_HOST,
 	user		: process.env.DATABASE_USER,
@@ -10,26 +8,22 @@ const db = mysql.createConnection({
 	database	: process.env.DATABASE_NAME
 });
 
-//connect
 db.connect((err) => {
-	if (err) {
-		throw err;
-	}
-	else {
-		console.log('mysql connected auth');
-	}
+	if (err) throw err;
+	else console.log('mysql connected auth'); //console loging!
 });
 
+const router = express.Router();
+const AuthController = require('../controllers/auth')
+
 router.get('/login', (req, res) => {
-	res.render('login');
+	res.render('auth/login');
 });
 
 router.get('/register', (req, res) => {
 	db.query("SELECT * FROM lan_geo", async (err, results) => {
-		if (err)
-			throw error;
-		else
-			res.render('register', { lans : results});
+		if (err) throw error;
+		else res.render('auth/register', { lans : results});
 	});
 });
 
