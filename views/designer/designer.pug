@@ -7,12 +7,11 @@ block content
 	p #{lan_geo}
 	a(href=`mailto:${email}`) send email
 	br
-	if authorized
-		if `${authorized}` == `true`
-			a(href=`/designer/create/?login=${login}&lan_geo=${lan_geo}`) create
-			br
-			a(href='/designer/localize') localize
-			br
-			a(href='/designer/modify') modify
+	if `${show}` == 'true'
+		a(href=`/designer/create/?login=${login}&lan_geo=${lan_geo}`) create
+		br
+		a(href='/designer/localize') localize
+		br
+		a(href='/designer/modify') modify
 	form(action="/auth/logout", method="post")
 		button log out

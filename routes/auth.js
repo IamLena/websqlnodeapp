@@ -2,12 +2,10 @@ const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/auth');
 
-
 const redirectPersonalPage = (req, res, next) => {
 	if (req.session.user) {
 		if (req.session.user.type == 1)
-			return res.send('designer');
-			// return res.redirect(`/designer`);
+			return res.redirect(`/designer`);
 		else if (req.session.user.type == 2)
 			return res.send('contman');
 			// return res.redirect(`/contman`);

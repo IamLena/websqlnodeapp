@@ -3,6 +3,7 @@ const fs = require("fs");
 const { url } = require('inspector');
 const { brotliDecompress } = require('zlib');
 const { resolveSoa } = require('dns');
+const Database = require('../db');
 
 const db = mysql.createConnection({
 	host		: process.env.DATABASE_HOST,
@@ -18,25 +19,19 @@ db.connect((err) => {
 	}
 });
 
-exports.personalPage = (req, res) => {
-	const login = req.session.user_login;
-	if (login) {
-		db.query("SELECT * FROM users WHERE login = ?", login, async (err, results) => {
-			if (err)
-				throw err;
-			authorized = req.query.authorized;
-			res.render('designer/designer', {
-				login : results[0].login,
-				name : results[0].name,
-				lan_geo : results[0].lan_geo,
-				email : results[0].email,
-				authorized : authorized,
-			});
+exports.personalPage = async (req, res) => {
+	if (req.session.user) {
+		const user = req.session.user;
+		res.render('designer/designer', {
+			login : user.login,
+			name : user.name,
+			lan_geo : user.lan_geo,
+			email : user.email,
+			show : user.type == 1
 		});
 	}
-	else {
-		res.send("anonymous designer's personal page");
-	}
+	else
+		res.redirect("/");
 }
 
 exports.GETCreateRecord = (req, res) => {
