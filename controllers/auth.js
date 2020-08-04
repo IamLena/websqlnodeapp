@@ -13,17 +13,12 @@ db.connect((err) => {
 	else console.log('mysql connected auth');
 });
 
-f_redirect = (res, user) => {
-	if (user.type == 1)
-		return res.redirect(`/designer/?login=${user.login}&authorized=${true}`);
-	if (user.type == 2)
-		return (res.send("content manager page"));
-	if (user.type == 3)
-		return (res.send("graphic product artist page"));
-	return(res.render("/"));
+
+exports.GETlogin = (req, res) => {
+	res.render('auth/login');
 }
 
-exports.login = async (req, res) => {
+exports.POSTlogin = async (req, res) => {
 	const {login, password} = req.body;
 
 	if (!login || !password)
@@ -42,32 +37,39 @@ exports.login = async (req, res) => {
 			else if (!(await bcrypt.compare(password, results[0].password)))
 				return res.status(402).render('auth/login', {message : "wrong password"});
 			else
-				return f_redirect(res, results[0]);
-		})
+			{
+				req.session.user_login = login; // that is not working asynchonic! need a promise
+				req.session.user = results[0];
+				//redirect to /personalpage
+			}
+		});
 	}
+	res.send(req.session);
 }
 
-exports.register = (req, res) => {
+const register_error = (res, send_message) => {
+	return db.query("SELECT * FROM lan_geo", async (err, results) => {
+		if (err) throw error;
+		else res.render('auth/register', { lans : results, message: send_message});
+	});
+}
+
+exports.POSTregister = (req, res) => {
 	const {login, fullname, email, lan_geo, position, password, confirmedPassword} = req.body;
-	// if (!login || !fullname || !email || !lan_geo || !position || !password || !confirmPassword) {
-	// 	return res.render('register', {
-	// 		message: 'provide data'
-	// 	});
-	// }
-	db.query('SELECT email FROM users WHERE email = ?', [email], async (error, results) => {
+
+	if (!login || !fullname || !email || !lan_geo || !position || !password || !confirmedPassword || lan_geo=='Choose the language...') {
+		return register_error(res, 'provide data');
+	}
+	db.query('SELECT * FROM users WHERE login = ?', [login], async (error, results) => {
 		if (error)
 			throw error;
 		else if (results.length > 0)
 		{
-			return res.render('register', {
-				message: 'that email is already in use'
-			});
+			return register_error(res, 'that login is already in use');
 		}
 		else if (password != confirmedPassword)
 		{
-			return res.render('register', {
-				message: 'passwords do not match'
-			});
+			return register_error(res, 'passwords do not match');
 		}
 		else
 		{
@@ -84,15 +86,20 @@ exports.register = (req, res) => {
 					throw error;
 				else
 				{
-					return f_redirect(res, {
-						login: login,
-						name: fullname,
-						email: email,
-						lan_geo: lan_geo,
-						type: position,
-					});
+					req.session.user_login = login;
+					// res.send(req.session);
+					// res.redirect('/auth/personalpage');
 				}
 			});
 		}
 	});
+}
+
+exports.POSTlogout = (req, res) => {
+	req.session.destroy(err => {
+		if (err)
+			return res.redired('/');
+	})
+	res.clearCookie(process.env.SEES_NAME);
+	res.redirect("/");
 }

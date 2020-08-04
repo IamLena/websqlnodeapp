@@ -3,33 +3,34 @@ block content
 	div.container.text-center.registerform
 		h1 Please fill in the form
 		form.text-center(action="/auth/register", method="post")
-			div.custom-control.custom-radio.custom-control-inline
+			div.custom-control.custom-radio.custom-control-inline.regelem
 				input.custom-control-input(type="radio" id="designer" name="position", value=1)
 				label.custom-control-label(for="designer") designer
-			div.custom-control.custom-radio.custom-control-inline
+			div.custom-control.custom-radio.custom-control-inline.regelem
 				input.custom-control-input(type="radio" id="manager" name="position", value=2)
 				label.custom-control-label(for="manager") content manager
-			div.custom-control.custom-radio.custom-control-inline
+			div.custom-control.custom-radio.custom-control-inline.regelem
 				input.custom-control-input(type="radio" id="ga" name="position", value=3)
 				label.custom-control-label(for="ga") graphic artist
 
-			div.input-group.mb-3
-				div.input-group-prepend
-					label.input-group-text(for="lan_geo") Language
-				select.custom-select(id="lan_geo")
+			div.input-group.regelem
+				select.custom-select(name="lan_geo" id="lan_geo")
+					option(selected='') Choose the language...
 					each lan in lans
 						option(value=lan.lan_geo) #{lan.language} (#{lan.country})
 
-			div
+			div.regelem
 				input.form-control(id="inputlogin", placeholder="Enter login", name="login")
-			div
+			div.regelem
 				input.form-control(id="inputfullname", placeholder="Enter fullname", name="fullname")
-			div
+			div.regelem
 				input.form-control(type="email", id="inputemail", placeholder="Enter email", name="email")
-			div
+			div.regelem
 				input.form-control(type="password", id="inputpassword", placeholder="Enter password", name="password")
-			div
+			div.regelem
 				input.form-control(type="password", id="inputconfpassword", placeholder="Confirm password", name="confirmedPassword")
-			button.btn.btn-block.btn-success(type="submit") register
+			button.regelem.btn.btn-block.btn-success(type="submit") register
 		if (message)
 			p.text-warning #{message}
+		else
+			p &nbsp;

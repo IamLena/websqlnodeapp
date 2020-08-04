@@ -4,4 +4,23 @@
 
 .loginform {
 	width : 60%;
+
+}
+
+.registerform {
+	width : 70%;
+}
+
+.input-group-text {
+	color: white;
+	background-color:  #333;
+}
+
+.regelem {
+	margin-bottom: 5px;
+}
+
+.custom-control-inline {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }

@@ -19,7 +19,7 @@ db.connect((err) => {
 });
 
 exports.personalPage = (req, res) => {
-	const login = req.query.login;
+	const login = req.session.user_login;
 	if (login) {
 		db.query("SELECT * FROM users WHERE login = ?", login, async (err, results) => {
 			if (err)
