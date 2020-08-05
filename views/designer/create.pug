@@ -1,68 +1,61 @@
 extends ../layout
 block content
-	form(action=`/designer/create/?login=${m_login}`, method='post', enctype="multipart/form-data")
-		div
-			label(for="inputcode") code
-			if (m_code && `${m_code}` != 'undefined')
-				input(id="inputcode", placeholder="enter code", name="code", value=`${m_code}`)
-			else
-				input(id="inputcode", placeholder="enter code", name="code")
-		div
-			label(for="inputcontent") content
-			if (m_content && `${m_content}` != 'undefined')
-				input(id="inputcontent", placeholder="enter content", name="content", value=`${m_content}`)
-			else
-				input(id="inputcontent", placeholder="enter content", name="content")
-		div
-			label(for="inputheight") height
-			if (m_height && `${m_height}` != 'undefined')
-				input(id="inputheight", placeholder="enter height", name="height", value=`${m_height}`)
-			else
-				input(id="inputheight", placeholder="enter height", name="height")
+	form(action='/designer/create', method='post', enctype="multipart/form-data")
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputcode") code
+			input.form-control(id="inputcode", placeholder="enter code", name="code")
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputcontent") content
+			input.form-control(id="inputcontent", placeholder="enter content", name="content")
 
-		div
-			label(for="inputwidth") width
-			if (m_width && `${m_width}` != 'undefined')
-				input(id="inputwidth", placeholder="enter width", name="width", value=`${m_width}`)
-			else
-				input(id="inputwidth", placeholder="enter width", name="width")
-		div
-			label(for="inputppi") ppi
-			if (m_ppi && `${m_ppi}` != 'undefined')
-				input(id="inputppi", placeholder="enter ppi", name="ppi", value=`${m_ppi}`)
-			else
-				input(id="inputppi", placeholder="enter ppi", name="ppi")
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputheight") height
+			input.form-control(type="number" id="inputheight", placeholder="enter heigh", name="height")
 
-		label(for="lan_geo") Choose language:
-		select(name="lan_geo", id="lan_geo")
-			option(value=`${m_lan_geo}`) #{m_lan_geo}
-			each lan in m_lans
-				option(value=lan.lan_geo) #{lan.language} (#{lan.country})
-		br
-		label(for="inputos") Choose os:
-		select(name="os", id="inputos")
-			each m_os in m_oss
-				option(value=m_os.nickname) #{m_os.name}
-		br
-		label(for="inputdevice") Choose device:
-		select(name="device", id="inputdevice")
-			each m_dev in m_devices
-				option(value=m_dev.nickname) #{m_dev.name}
-		br
+			div.input-group-prepend
+				label.input-group-text(for="inputwidth") width
+			input.form-control(type="number" id="inputwidth", placeholder="enter width", name="width")
 
-		if (m_files)
-			div
-				label(for="inputgrab") grab
-				input(type="file" id="inputgrab", name="grab")
-			div
-				label(for="inputpreview") preview
-				input(type="file" id="inputpreview", name="preview")
-			div
-				label(for="inputpsd") psd
-				input(type="file" id="inputpsd", name="psd")
-			div
-				label(for="inputtif") tif
-				input(type="file" id="inputtif", name="tif")
+			div.input-group-prepend
+				label.input-group-text(for="inputppi") ppi
+			input.form-control(type="number" id="inputppi", placeholder="enter ppi", name="ppi")
 
-		button(type='submit') upload files
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="lan_geo") Choose language
+				select.custom-select(name="lan_geo", id="lan_geo")
+					each lan in m_lans
+						option(value=lan.lan_geo) #{lan.language} (#{lan.country})
 
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputos") Choose os
+				select.custom-select(name="os", id="inputos")
+					each m_os in m_oss
+						option(value=m_os.nickname) #{m_os.name}
+
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputdevice") Choose device
+				select.custom-select(name="device", id="inputdevice")
+					each m_dev in m_devices
+						option(value=m_dev.nickname) #{m_dev.name}
+
+		button.btn.btn-block.btn-success(type='submit') upload files
+
+		//- if (m_files)
+		//- 	div
+		//- 		label(for="inputgrab") grab
+		//- 		input(type="file" id="inputgrab", name="grab")
+		//- 	div
+		//- 		label(for="inputpreview") preview
+		//- 		input(type="file" id="inputpreview", name="preview")
+		//- 	div
+		//- 		label(for="inputpsd") psd
+		//- 		input(type="file" id="inputpsd", name="psd")
+		//- 	div
+		//- 		label(for="inputtif") tif
+		//- 		input(type="file" id="inputtif", name="tif")

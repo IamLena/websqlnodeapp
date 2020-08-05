@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const DesignerController = require("../controllers/designer")
-const mysql = require('mysql');
-
-const Database = require("../db")
 
 const redirectLogin = (req, res, next) => {
 	if (!req.session.user)
@@ -12,15 +9,13 @@ const redirectLogin = (req, res, next) => {
 		next();
 }
 
-router.get('/', redirectLogin, DesignerController.personalPage);
+router.get('/create', redirectLogin, DesignerController.GETCreateRecord);
+router.post('/create', redirectLogin, DesignerController.POSTCreateRecord);
 
-// router.get('/create', DesignerController.GETCreateRecord);
-// router.post('/create', DesignerController.POSTCreateRecord);
+// router.get('/localize', redirectLogin, DesignerController.GETLocalizeRecord);
+// router.post('/localize', redirectLogin, DesignerController.POSTLocalizeRecord);
 
-// router.get('/localize', DesignerController.GETLocalizeRecord);
-// router.post('/localize', DesignerController.POSTLocalizeRecord);
-
-// router.get('/modify', DesignerController.GETModifyRecord);
-// router.post('/modify', DesignerController.POSTModifyRecord);
+// router.get('/modify', redirectLogin, DesignerController.GETModifyRecord);
+// router.post('/modify', redirectLogin, DesignerController.POSTModifyRecord);
 
 module.exports = router;
