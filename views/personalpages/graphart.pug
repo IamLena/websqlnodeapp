@@ -1,0 +1,15 @@
+extends ../layout
+block content
+	div.container
+		div.row
+			div.col-sm
+				img.personalpic(src='/images/anon.png')
+			div.col-sm
+				h4 graphic production artist
+				h1 #{firstname} #{lastname}
+				p #{lan_geo}
+				div
+					a.btn.btn-info(href='#') find page
+					a.btn.btn-info(href='#') find .tif
+				form.bottom(action="/auth/logout", method="post")
+					button.btn.btn-secondary log out

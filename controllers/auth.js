@@ -5,7 +5,6 @@ exports.GETlogin = (req, res) => {
 	res.render('auth/login');
 }
 
-
 exports.GETregister = async (req, res) => {
 	const db = new Database( {
 		host		: process.env.DATABASE_HOST,
@@ -122,4 +121,38 @@ exports.POSTlogout = (req, res) => {
 	})
 	res.clearCookie(process.env.SEES_NAME);
 	res.redirect("/");
+}
+
+exports.personalPage = async (req, res) => {
+	if (req.session.user) {
+		const db = new Database( {
+			host		: process.env.DATABASE_HOST,
+			user		: process.env.DATABASE_USER,
+			password	: process.env.DATABASE_PASSWORD,
+			database	: process.env.DATABASE_NAME
+		} );
+
+		try {
+			const user = req.session.user;
+			const results = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
+			const language = `${results[0].language} (${results[0].country})`;
+			const page_config = {
+				firstname : user.firstname,
+				lastname : user.lastname,
+				lan_geo : language
+			};
+			if (user.type == 1)
+				res.render('personalpages/designer', page_config);
+			else if (user.type == 2)
+				res.render('personalpages/contman', page_config);
+			else if (user.type == 3)
+				res.render('personalpages/graphart', page_config);
+		} catch ( err ) {
+			res.send(err);
+		} finally {
+			await db.close();
+		}
+	}
+	else
+		res.redirect("/");
 }

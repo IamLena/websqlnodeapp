@@ -1,0 +1,16 @@
+extends ../layout
+block content
+	div.container
+		div.row
+			div.col-sm
+				img.personalpic(src='/images/anon.png')
+			div.col-sm
+				h4 designer
+				h1 #{firstname} #{lastname}
+				p #{lan_geo}
+				div
+					a.btn.btn-info(href='/designer/create') create
+					a.btn.btn-info(href='/designer/localize') localize
+					a.btn.btn-info(href='/designer/modify') modify
+				form.bottom(action="/auth/logout", method="post")
+					button.btn.btn-secondary log out

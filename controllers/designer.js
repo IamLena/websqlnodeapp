@@ -18,13 +18,12 @@ exports.personalPage = async (req, res) => {
 			const user = req.session.user;
 			const results = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
 			const language = `${results[0].language} (${results[0].country})`;
-			res.render('designer/designer', {
+			res.render('personalpages/designer', {
 				login : user.login,
 				firstname : user.firstname,
 				lastname : user.lastname,
 				lan_geo : language,
-				email : user.email,
-				show : user.type == 1
+				email : user.email
 			});
 		} catch ( err ) {
 			res.send(err);
