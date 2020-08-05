@@ -80,9 +80,9 @@ exports.POSTregister = async (req, res) => {
 	} );
 
 	try {
-		const {login, fullname, email, lan_geo, position, password, confirmedPassword} = req.body;
+		const {login, firstname, lastname, email, lan_geo, position, password, confirmedPassword} = req.body;
 
-		if (!login || !fullname || !email || !lan_geo || !position || !password || !confirmedPassword || lan_geo=='Choose the language...')
+		if (!login || !firstname || !lastname || !email || !lan_geo || !position || !password || !confirmedPassword || lan_geo=='Choose the language...')
 			return register_error(db, res, 'provide data');
 		results = await db.query(`SELECT * FROM users WHERE login = "${login}"`);
 		if (results.length > 0)
@@ -94,17 +94,19 @@ exports.POSTregister = async (req, res) => {
 			const hashedPassword = await bcrypt.hash(password, 10);
 			const idresults = await db.query("SELECT uuid() as id")
 			const id = idresults[0].id
-			await db.query("INSERT into users SET ?", {
+			const user = {
 				id : id,
 				login : login,
-				name : fullname,
+				firstname : firstname,
+				lastname : lastname,
 				email : email,
 				type : position,
 				password : hashedPassword,
 				lan_geo : lan_geo
-			});
+			};
+			await db.query("INSERT into users SET ?", user);
 			req.session.user = user;
-			res.send('done');
+			res.redirect("/auth/personalpage");
 		}
 	} catch ( err ) {
 		res.send(err);

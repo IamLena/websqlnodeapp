@@ -24,3 +24,10 @@
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+
+.personalpic {
+	width: 100%;
+	background-color : white;
+}
+
+.bottom{position:absolute; bottom:0;}

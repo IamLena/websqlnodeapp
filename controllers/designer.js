@@ -5,30 +5,32 @@ const { brotliDecompress } = require('zlib');
 const { resolveSoa } = require('dns');
 const Database = require('../db');
 
-const db = mysql.createConnection({
-	host		: process.env.DATABASE_HOST,
-	user		: process.env.DATABASE_USER,
-	password	: process.env.DATABASE_PASSWORD,
-	database	: process.env.DATABASE_NAME
-});
-
-db.connect((err) => {
-	if (err) throw err;
-	else {
-		console.log('mysql connected auth');
-	}
-});
-
 exports.personalPage = async (req, res) => {
 	if (req.session.user) {
-		const user = req.session.user;
-		res.render('designer/designer', {
-			login : user.login,
-			name : user.name,
-			lan_geo : user.lan_geo,
-			email : user.email,
-			show : user.type == 1
-		});
+		const db = new Database( {
+			host		: process.env.DATABASE_HOST,
+			user		: process.env.DATABASE_USER,
+			password	: process.env.DATABASE_PASSWORD,
+			database	: process.env.DATABASE_NAME
+		} );
+
+		try {
+			const user = req.session.user;
+			const results = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
+			const language = `${results[0].language} (${results[0].country})`;
+			res.render('designer/designer', {
+				login : user.login,
+				firstname : user.firstname,
+				lastname : user.lastname,
+				lan_geo : language,
+				email : user.email,
+				show : user.type == 1
+			});
+		} catch ( err ) {
+			res.send(err);
+		} finally {
+			await db.close();
+		}
 	}
 	else
 		res.redirect("/");
