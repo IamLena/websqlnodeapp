@@ -61,15 +61,20 @@ block content
 						option(value=m_dev.nickname) #{m_dev.name}
 
 		div.input-group.form-row.mb-1
-			div
+			div.input-group-prepend
 				label(for="inputgrab") grab
 				input(type="file" id="inputgrab", name="grab")
-			div
+			div.input-group-prepend
 				label(for="inputpsd") psd
 				input(type="file" id="inputpsd", name="psd")
-			div
+
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
 				label(for="inputtif") tif
 				input(type="file" id="inputtif", name="tif")
+			div.input-group-prepend
+				label(for="inputpreview") preview
+				input(type="file" id="inputpreview", name="preview")
 
 		button.btn.btn-block.btn-success(type='submit') upload files
 

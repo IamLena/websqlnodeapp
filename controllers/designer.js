@@ -67,18 +67,110 @@ const rerender = async (req, res, code, content, height, width, ppi, lan_geo, os
 }
 
 exports.GETCreateRecord = async (req, res) => {
-	rerender(req, res);
+	await rerender(req, res);
 }
 
-
-
 exports.POSTCreateRecord = async (req, res) => {
-	const {code, content, height, width, ppi, lan_geo, os, device} = req.body;
+	let {code, content, height, width, ppi, lan_geo, os, device} = req.body;
 
 	if (!code || !content || !height || !width || !ppi || os=="undefined" || device=="undefined") {
 		await rerender(req, res, code, content, height, width, ppi, lan_geo, os, device, "provide data");
 	}
+	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || !req.files.preview) {
+		await rerender(req, res, code, content, height, width, ppi, lan_geo, os, device, "add files");
+	}
+	else {
+		const version = 1;
+		let date = new Date();
+		date = date.getUTCFullYear() + '-' +
+			('00' + (date.getUTCMonth()+1)).slice(-2) + '-' +
+			('00' + date.getUTCDate()).slice(-2) + ' ' +
+			('00' + date.getUTCHours()).slice(-2) + ':' +
+			('00' + date.getUTCMinutes()).slice(-2) + ':' +
+			('00' + date.getUTCSeconds()).slice(-2);
 
+		const cpcontent = content;
+		content = content.replace(/ /g, "-");
+
+		const initals = `${req.session.user.firstname[0]}${req.session.user.lastname[0]}`
+
+		//generating file paths
+		let filename = `uploads/${os}/${device}/${code}_${content}_${lan_geo}_${initals}_${version}`;
+
+		fs.mkdir(`uploads/${os}`, (err) =>{
+			if (err && err.code != "EEXIST") throw err;
+		})
+
+		fs.mkdir(`uploads/${os}/${device}`, (err) => {
+			if (err && err.code != "EEXIST") throw err;
+		})
+
+		const grabfile = req.files.grab;
+		const previewfile = req.files.preview;
+		const psdfile = req.files.psd;
+		const tiffile = req.files.tif;
+
+		grabfile.mv(`${filename}_grab.png`, (err) => {
+			if (err) throw err;
+		});
+
+		previewfile.mv(`${filename}.png`, (err) => {
+			if (err) throw err;
+		});
+
+		psdfile.mv(`${filename}.psd`, (err) => {
+			if (err) throw err;
+		});
+
+		tiffile.mv(`${filename}.tif`, (err) => {
+			if (err) throw err;
+		});
+
+		const db = new Database( {
+			host		: process.env.DATABASE_HOST,
+			user		: process.env.DATABASE_USER,
+			password	: process.env.DATABASE_PASSWORD,
+			database	: process.env.DATABASE_NAME
+		} );
+
+		try {
+			await db.query('INSERT INTO psd SET ?', {
+				code : code,
+				designer_id : req.session.user.id,
+				lan_geo : lan_geo,
+				version : 1,
+				create_time : date,
+				width : width,
+				height : height,
+				scale : 1,
+				ppi : ppi,
+				grab : `${filename}_grab.png`,
+				preview : `${filename}.png`,
+				filename : `${filename}.psd`,
+				os : os,
+				device : device,
+				content : cpcontent,
+			});
+
+			const maxidres = await db.query("SELECT MAX(id) as psd_id FROM psd");
+			await db.query('INSERT INTO tif SET ?', {
+				psd_id : maxidres[0].psd_id,
+				width : width,
+				height : height,
+				scale : 1,
+				ppi : ppi,
+				filename : `${filename}.tif`,
+				preview : `${filename}.png`,
+			});
+		}
+		catch(err) {
+			res.send(err);
+		}
+		finally {
+			await db.close();
+		}
+	res.send("done");
+	}
 }
 
 exports.GETCreateRecord2 = async (req, res) => {
