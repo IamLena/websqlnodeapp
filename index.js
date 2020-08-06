@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
-// const upload = require('express-fileupload');
+const upload = require('express-fileupload');
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const util = require( 'util' );
@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.urlencoded({extended : false}));
 app.use(express.json());
 app.use(express.static(PublicDir));
+app.use(upload());
 
 app.use(session({
 	name: process.env.SESS_NAME,
@@ -52,8 +53,6 @@ app.use(async (req, res, next) => {
 	}
 	next();
 })
-
-// app.use(upload());
 
 app.set('views', ViewsDir);
 app.set('view engine', 'pug');

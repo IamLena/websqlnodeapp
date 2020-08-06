@@ -5,7 +5,7 @@ const { brotliDecompress } = require('zlib');
 const { resolveSoa } = require('dns');
 const Database = require('../db');
 
-exports.GETCreateRecord = async (req, res) => {
+const rerender = async (req, res, code, content, height, width, ppi, lan_geo, os, device, msg) => {
 	const db = new Database( {
 		host		: process.env.DATABASE_HOST,
 		user		: process.env.DATABASE_USER,
@@ -15,12 +15,47 @@ exports.GETCreateRecord = async (req, res) => {
 
 	try {
 		const os_results = await db.query('select * from os');
-		const device_results = await db.query('select * from devices');
+		let device_results = [];
 		const lan_geo_results = await db.query('select * from lan_geo');
+		let pickedlan;
+		let pickedos;
+		if (lan_geo)
+		{
+			pickedlan = await db.query('select * from lan_geo where lan_geo = ?', lan_geo);
+			pickedlan = pickedlan[0];
+		}
+		if (os)
+		{
+			pickedos = await db.query('select * from os where nickname = ?', os);
+			pickedos = pickedos[0];
+			if (device != "undefined")
+			{
+				device_results = await db.query('select * from devices where nickname = ?', device);
+			}
+			else
+			{
+				device_results = await db.query(`select devices.nickname as nickname, devices.name as name
+				from
+				devices inner join
+				(select *
+				from os_dev_comp
+				where os_nick = "${os}") tmp
+				on devices.nickname = tmp.dev_nick`);
+
+			}
+		}
 		res.render('designer/create', {
 			m_oss : os_results,
+			m_pickedos : pickedos,
 			m_devices : device_results,
-			m_lans : lan_geo_results
+			m_lans : lan_geo_results,
+			m_pickedlan : pickedlan,
+			m_code : code,
+			m_content : content,
+			m_height : height,
+			m_width : width,
+			m_ppi : ppi,
+			message : msg
 		})
 	}
 	catch(err) {
@@ -29,6 +64,21 @@ exports.GETCreateRecord = async (req, res) => {
 	finally {
 		await db.close();
 	}
+}
+
+exports.GETCreateRecord = async (req, res) => {
+	rerender(req, res);
+}
+
+
+
+exports.POSTCreateRecord = async (req, res) => {
+	const {code, content, height, width, ppi, lan_geo, os, device} = req.body;
+
+	if (!code || !content || !height || !width || !ppi || os=="undefined" || device=="undefined") {
+		await rerender(req, res, code, content, height, width, ppi, lan_geo, os, device, "provide data");
+	}
+
 }
 
 exports.GETCreateRecord2 = async (req, res) => {
@@ -97,7 +147,7 @@ exports.GETCreateRecord2 = async (req, res) => {
 	});
 }
 
-exports.POSTCreateRecord = (req, res) => {
+exports.POSTCreateRecord2 = (req, res) => {
 	//get data from form
 	let {code, content, height, width, ppi, os, device, lan_geo} = req.body;
 
