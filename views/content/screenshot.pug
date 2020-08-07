@@ -1,0 +1,21 @@
+extends ../layout
+block content
+	if (m_screen)
+		div.container
+		div.row
+			div.col-sm
+				p
+				| for
+				a(href="#")  #{m_os_name.name}
+				a(href="#")  #{m_device_name.name}
+				p #{m_language}
+				p #{m_screen.content}
+				p #{m_screen.height} x #{m_screen.width}
+				p
+					| by
+					a(href="#")  #{m_author_fullname}
+				p #{m_screen.create_time}
+			div.col-sm
+				img.personalpic(src=`${m_screen.preview}`)
+		button download psd
+		button download tif

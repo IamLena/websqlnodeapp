@@ -71,6 +71,7 @@ exports.GETCreateRecord = async (req, res) => {
 }
 
 exports.POSTCreateRecord = async (req, res) => {
+	let psd_id;
 	let {code, content, height, width, ppi, lan_geo, os, device} = req.body;
 
 	if (!code || !content || !height || !width || !ppi || os=="undefined" || device=="undefined") {
@@ -95,7 +96,7 @@ exports.POSTCreateRecord = async (req, res) => {
 		const initals = `${req.session.user.firstname[0]}${req.session.user.lastname[0]}`
 
 		//generating file paths
-		let filename = `uploads/${os}/${device}/${code}_${content}_${lan_geo}_${initals}_${version}`;
+		let filename = `${os}/${device}/${code}_${content}_${lan_geo}_${initals}_${version}`;
 
 		fs.mkdir(`uploads/${os}`, (err) =>{
 			if (err && err.code != "EEXIST") throw err;
@@ -105,24 +106,32 @@ exports.POSTCreateRecord = async (req, res) => {
 			if (err && err.code != "EEXIST") throw err;
 		})
 
+		fs.mkdir(`public/previews/${os}`, (err) =>{
+			if (err && err.code != "EEXIST") throw err;
+		})
+
+		fs.mkdir(`public/previews/${os}/${device}`, (err) => {
+			if (err && err.code != "EEXIST") throw err;
+		})
+
 		const grabfile = req.files.grab;
 		const previewfile = req.files.preview;
 		const psdfile = req.files.psd;
 		const tiffile = req.files.tif;
 
-		grabfile.mv(`${filename}_grab.png`, (err) => {
+		grabfile.mv(`uploads/${filename}_grab.png`, (err) => {
 			if (err) throw err;
 		});
 
-		previewfile.mv(`${filename}.png`, (err) => {
+		psdfile.mv(`uploads/${filename}.psd`, (err) => {
 			if (err) throw err;
 		});
 
-		psdfile.mv(`${filename}.psd`, (err) => {
+		tiffile.mv(`uploads/${filename}.tif`, (err) => {
 			if (err) throw err;
 		});
 
-		tiffile.mv(`${filename}.tif`, (err) => {
+		previewfile.mv(`public/previews/${filename}.png`, (err) => {
 			if (err) throw err;
 		});
 
@@ -144,23 +153,24 @@ exports.POSTCreateRecord = async (req, res) => {
 				height : height,
 				scale : 1,
 				ppi : ppi,
-				grab : `${filename}_grab.png`,
-				preview : `${filename}.png`,
-				filename : `${filename}.psd`,
+				grab : `uploads/${filename}_grab.png`,
+				preview : `/previews/${filename}.png`,
+				filename : `uploads/${filename}.psd`,
 				os : os,
 				device : device,
 				content : cpcontent,
 			});
 
 			const maxidres = await db.query("SELECT MAX(id) as psd_id FROM psd");
+			psd_id = maxidres[0].psd_id
 			await db.query('INSERT INTO tif SET ?', {
-				psd_id : maxidres[0].psd_id,
+				psd_id : psd_id,
 				width : width,
 				height : height,
 				scale : 1,
 				ppi : ppi,
-				filename : `${filename}.tif`,
-				preview : `${filename}.png`,
+				filename : `uploads/${filename}.tif`,
+				preview : `/previews/${filename}.png`,
 			});
 		}
 		catch(err) {
@@ -169,7 +179,7 @@ exports.POSTCreateRecord = async (req, res) => {
 		finally {
 			await db.close();
 		}
-	res.send("done");
+	res.redirect(`/screenshot/?psd_id=${psd_id}`);
 	}
 }
 
