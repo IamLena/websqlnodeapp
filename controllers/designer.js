@@ -98,19 +98,19 @@ exports.POSTCreateRecord = async (req, res) => {
 		//generating file paths
 		let filename = `${os}/${device}/${code}_${content}_${lan_geo}_${initals}_${version}`;
 
-		fs.mkdir(`uploads/${os}`, (err) =>{
+		await fs.mkdir(`uploads/${os}`, (err) =>{
 			if (err && err.code != "EEXIST") throw err;
 		})
 
-		fs.mkdir(`uploads/${os}/${device}`, (err) => {
+		await fs.mkdir(`uploads/${os}/${device}`, (err) => {
 			if (err && err.code != "EEXIST") throw err;
 		})
 
-		fs.mkdir(`public/previews/${os}`, (err) =>{
+		await fs.mkdir(`public/previews/${os}`, (err) =>{
 			if (err && err.code != "EEXIST") throw err;
 		})
 
-		fs.mkdir(`public/previews/${os}/${device}`, (err) => {
+		await fs.mkdir(`public/previews/${os}/${device}`, (err) => {
 			if (err && err.code != "EEXIST") throw err;
 		})
 
