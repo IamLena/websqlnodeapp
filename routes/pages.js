@@ -46,4 +46,54 @@ router.get('/screenshot', async (req, res) => {
 	}
 });
 
+router.get('/download_psd', async (req, res) => {
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		const psd_id = req.query.psd_id;
+		if (psd_id)
+		{
+			const psds = await db.query("select * from psd where id = ?", psd_id);
+			const psdfilename = psds[0].filename;
+			res.download(psdfilename);
+		}
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+});
+
+router.get('/download_tif', async (req, res) => {
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		const psd_id = req.query.psd_id;
+		if (psd_id)
+		{
+			const tifs = await db.query("select * from tif where psd_id = ?", psd_id);
+			const tiffilename = tifs[0].filename;
+			res.download(tiffilename);
+		}
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+});
+
 module.exports = router;

@@ -17,5 +17,5 @@ block content
 				p #{m_screen.create_time}
 			div.col-sm
 				img.personalpic(src=`${m_screen.preview}`)
-		button download psd
-		button download tif
+		a.btn.btn-secondary.mb-2(href=`/download_psd/?psd_id=${m_screen.id}`) download psd
+		a.btn.btn-secondary(href=`/download_tif/?psd_id=${m_screen.id}`) download tif

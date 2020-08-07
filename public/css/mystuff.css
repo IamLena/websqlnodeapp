@@ -35,3 +35,11 @@
 .dropdown:hover .dropdown-menu {
 	display: block;
 }
+
+.input-file{
+	display : none;
+}
+
+.btn-file {
+	background-color: #ffda75;
+}
