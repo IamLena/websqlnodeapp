@@ -32,6 +32,7 @@ router.get('/screenshot', async (req, res) => {
 		res.render('content/screenshot', {
 			m_screen : screen,
 			m_author_fullname : author_fullname,
+			m_author_id : screen.designer_id,
 			m_os_name : osnames[0],
 			m_device_name : devicenames[0],
 			m_language : `${languages[0].language} (${languages[0].country})`

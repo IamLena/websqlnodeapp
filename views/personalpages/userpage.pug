@@ -1,0 +1,16 @@
+extends ../authorized
+
+block content
+	div.container
+		div.row
+			div.col-sm
+				img.personalpic(src=`${image_path}`)
+			div.col-sm
+				if (`${userpagetype}` == 1)
+					h4 designer
+				else if (`${userpagetype}` == 2)
+					h4 content manager
+				else if (`${userpagetype}` == 3)
+					h4  graphic production artist
+				h1 #{firstname} #{lastname}
+				p #{lan_geo}

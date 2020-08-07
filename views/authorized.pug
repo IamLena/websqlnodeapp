@@ -1,0 +1,30 @@
+extends layout
+block navitemhere
+	if (`${type}` == 1)
+		div.nav-item.dropdown.ml-3
+			a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+				| Action
+			div.dropdown-menu(aria-labelledby="navbarDropdown")
+				a.dropdown-item(href='/designer/create') create psd
+				a.dropdown-item(href='/designer/localize') localize psd
+				a.dropdown-item(href='/designer/modify') modify psd
+				div.dropdown-divider
+				a.dropdown-item(href='/auth/logout') log out
+	if (`${type}` == 2)
+		div.nav-item.dropdown.ml-3
+			a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+				| Action
+			div.dropdown-menu(aria-labelledby="navbarDropdown")
+				a.dropdown-item(href='#') create matrix
+				a.dropdown-item(href='#') modify/publish matrix
+				div.dropdown-divider
+				a.dropdown-item(href='/auth/logout') log out
+	if (`${type}` == 3)
+		div.nav-item.dropdown.ml-3
+			a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+				| Action
+			div.dropdown-menu(aria-labelledby="navbarDropdown")
+				a.dropdown-item(href='#') find page
+				a.dropdown-item(href='#') find .tif
+				div.dropdown-divider
+				a.dropdown-item(href='/auth/logout') log out

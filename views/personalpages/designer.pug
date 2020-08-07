@@ -1,14 +1,4 @@
-extends ../layout
-block navitemhere
-	div.nav-item.dropdown.ml-3
-		a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-			| Action
-		div.dropdown-menu(aria-labelledby="navbarDropdown")
-			a.dropdown-item(href='/designer/create') create psd
-			a.dropdown-item(href='/designer/localize') localize psd
-			a.dropdown-item(href='/designer/modify') modify psd
-			div.dropdown-divider
-			a.dropdown-item(href='/auth/logout') log out
+extends ../authorized
 
 block content
 	div.container
@@ -19,9 +9,3 @@ block content
 				h4 designer
 				h1 #{firstname} #{lastname}
 				p #{lan_geo}
-				//- div
-				//- 	a.btn.btn-info(href='/designer/create') create
-				//- 	a.btn.btn-info(href='/designer/localize') localize
-				//- 	a.btn.btn-info(href='/designer/modify') modify
-				//- form.bottom(action="/auth/logout", method="post")
-				//- 	button.btn.btn-secondary log out

@@ -133,20 +133,43 @@ exports.personalPage = async (req, res) => {
 		} );
 
 		try {
-			const user = req.session.user;
-			const results = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
-			const language = `${results[0].language} (${results[0].country})`;
-			const page_config = {
-				firstname : user.firstname,
-				lastname : user.lastname,
-				lan_geo : language
-			};
-			if (user.type == 1)
-				res.render('personalpages/designer', page_config);
-			else if (user.type == 2)
-				res.render('personalpages/contman', page_config);
-			else if (user.type == 3)
-				res.render('personalpages/graphart', page_config);
+			if (!req.query.id)
+			{
+				const user = req.session.user;
+				const results = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
+				const language = `${results[0].language} (${results[0].country})`;
+				const page_config = {
+					firstname : user.firstname,
+					lastname : user.lastname,
+					lan_geo : language,
+					type : user.type,
+					userpagetype : user.type,
+					image_path : '/images/anon.png'
+				};
+				res.render('personalpages/userpage', page_config);
+			}
+			else {
+				const user_id = req.query.id;
+				const users = await db.query('select * from users where id = ?', user_id)
+				const user = users[0];
+				const results = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
+				const language = `${results[0].language} (${results[0].country})`;
+				const page_config = {
+					firstname : user.firstname,
+					lastname : user.lastname,
+					lan_geo : language,
+					image_path : '/images/anon.png',
+					userpagetype : user.type,
+					type : req.session.user.type
+				};
+				res.render('personalpages/userpage', page_config);
+			}
+			// if (user.type == 1)
+			// 	res.render('personalpages/designer', page_config);
+			// else if (user.type == 2)
+			// 	res.render('personalpages/contman', page_config);
+			// else if (user.type == 3)
+			// 	res.render('personalpages/graphart', page_config);
 		} catch ( err ) {
 			res.send(err);
 		} finally {
