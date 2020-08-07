@@ -24,6 +24,6 @@ router.get('/register', redirectPersonalPage, AuthController.GETregister);
 router.post('/login', redirectPersonalPage, AuthController.POSTlogin);
 router.post('/register', redirectPersonalPage, AuthController.POSTregister);
 
-router.post('/logout', redirectLogin, AuthController.POSTlogout);
+router.get('/logout', redirectLogin, AuthController.POSTlogout);
 
 module.exports = router;

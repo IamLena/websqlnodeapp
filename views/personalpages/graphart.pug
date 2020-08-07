@@ -1,4 +1,14 @@
 extends ../layout
+block navitemhere
+	div.nav-item.dropdown.ml-3
+		a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+			| Action
+		div.dropdown-menu(aria-labelledby="navbarDropdown")
+			a.dropdown-item(href='#') find page
+			a.dropdown-item(href='#') find .tif
+			div.dropdown-divider
+			a.dropdown-item(href='/auth/logout') log out
+
 block content
 	div.container
 		div.row
@@ -8,8 +18,8 @@ block content
 				h4 graphic production artist
 				h1 #{firstname} #{lastname}
 				p #{lan_geo}
-				div
-					a.btn.btn-info(href='#') find page
-					a.btn.btn-info(href='#') find .tif
-				form.bottom(action="/auth/logout", method="post")
-					button.btn.btn-secondary log out
+				//- div
+				//- 	a.btn.btn-info(href='#') find page
+				//- 	a.btn.btn-info(href='#') find .tif
+				//- form.bottom(action="/auth/logout", method="post")
+				//- 	button.btn.btn-secondary log out

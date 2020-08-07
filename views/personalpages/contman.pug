@@ -1,4 +1,15 @@
 extends ../layout
+
+block navitemhere
+	div.nav-item.dropdown.ml-3
+		a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+			| Action
+		div.dropdown-menu(aria-labelledby="navbarDropdown")
+			a.dropdown-item(href='#') create matrix
+			a.dropdown-item(href='#') modify/publish matrix
+			div.dropdown-divider
+			a.dropdown-item(href='/auth/logout') log out
+
 block content
 	div.container
 		div.row
@@ -8,8 +19,8 @@ block content
 				h4 content manager
 				h1 #{firstname} #{lastname}
 				p #{lan_geo}
-				div
-					a.btn.btn-info(href='#') create
-					a.btn.btn-info(href='#') modify/publish
-				form.bottom(action="/auth/logout", method="post")
-					button.btn.btn-secondary log out
+				//- div
+				//- 	a.btn.btn-info(href='#') create
+				//- 	a.btn.btn-info(href='#') modify/publish
+				//- form.bottom(action="/auth/logout", method="post")
+				//- 	button.btn.btn-secondary log out

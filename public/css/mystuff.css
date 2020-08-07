@@ -31,3 +31,7 @@
 }
 
 .bottom{position:absolute; bottom:0;}
+
+.dropdown:hover .dropdown-menu {
+	display: block;
+}
