@@ -1,4 +1,4 @@
-extends ../authorized
+extends layout
 
 block content
 	div.container
@@ -12,5 +12,5 @@ block content
 					h4 content manager
 				else if (`${userpagetype}` == 3)
 					h4  graphic production artist
-				h1 #{firstname} #{lastname}
+				h1 #{fullname}
 				p #{lan_geo}

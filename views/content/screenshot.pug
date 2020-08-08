@@ -1,4 +1,5 @@
 extends ../layout
+
 block content
 	if (m_screen)
 		div.container
@@ -13,7 +14,7 @@ block content
 				p #{m_screen.height} x #{m_screen.width}
 				p
 					| by
-					a(href=`/auth/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
+					a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
 				p #{m_screen.create_time}
 			div.col-sm
 				img.personalpic(src=`${m_screen.preview}`)

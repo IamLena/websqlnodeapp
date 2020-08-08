@@ -4,7 +4,7 @@ const AuthController = require('../controllers/auth');
 
 const redirectPersonalPage = (req, res, next) => {
 	if (req.session.user)
-		res.redirect('/auth/personalpage');
+		res.redirect('/personalpage');
 	else
 		next();
 }
@@ -15,8 +15,6 @@ const redirectLogin = (req, res, next) => {
 	else
 		next();
 }
-
-router.get('/personalpage', redirectLogin, AuthController.personalPage);
 
 router.get('/login', redirectPersonalPage, AuthController.GETlogin);
 router.get('/register', redirectPersonalPage, AuthController.GETregister);

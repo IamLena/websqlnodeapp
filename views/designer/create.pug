@@ -1,4 +1,6 @@
 extends ../layout
+//- extends ../authorized because no type is send to renderer
+
 block content
 	form(action='/designer/create', method='post', enctype="multipart/form-data")
 		div.input-group.form-row.mb-1

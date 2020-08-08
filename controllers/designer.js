@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const fs = require("fs");
-const { url } = require('inspector');
-const { brotliDecompress } = require('zlib');
+// const { url } = require('inspector');
+// const { brotliDecompress } = require('zlib');
 const { resolveSoa } = require('dns');
 const Database = require('../db');
 const  PSD = require('psd');
@@ -46,6 +46,7 @@ const rerender = async (req, res, code, content, height, width, ppi, lan_geo, os
 			}
 		}
 		res.render('designer/create', {
+			type: req.session.user.type,
 			m_oss : os_results,
 			m_pickedos : pickedos,
 			m_devices : device_results,
@@ -78,7 +79,6 @@ exports.POSTCreateRecord = async (req, res) => {
 	if (!code || !content || !height || !width || !ppi || os=="undefined" || device=="undefined") {
 		await rerender(req, res, code, content, height, width, ppi, lan_geo, os, device, "provide data");
 	}
-	// || !req.files.preview
 	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif) {
 		await rerender(req, res, code, content, height, width, ppi, lan_geo, os, device, "add files");
 	}
@@ -95,7 +95,7 @@ exports.POSTCreateRecord = async (req, res) => {
 		const cpcontent = content;
 		content = content.replace(/ /g, "-");
 
-		const initals = `${req.session.user.firstname[0]}${req.session.user.lastname[0]}`
+		const initals = req.session.user.initials;
 
 		//generating file paths
 		let filename = `${os}/${device}/${code}_${content}_${lan_geo}_${initals}_${version}`;
@@ -136,10 +136,6 @@ exports.POSTCreateRecord = async (req, res) => {
 		const previewfile = PSD.open(`uploads/${filename}.psd`).then(function (psd) {
 			return psd.image.saveAsPng(`public/previews/${filename}.png`);
 		});
-
-		// previewfile.mv(`public/previews/${filename}.png`, (err) => {
-		// 	if (err) throw err;
-		// });
 
 		const db = new Database( {
 			host		: process.env.DATABASE_HOST,
