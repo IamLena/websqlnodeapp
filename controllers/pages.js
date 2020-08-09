@@ -56,11 +56,40 @@ exports.GETpersonalpage = async (req, res) => {
 		res.redirect("/");
 }
 
+exports.GETfindscreenshot = async (req, res) => {
+	const db = new Database( {
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	} );
+
+	try {
+		const results = await db.query(`select firstname, lastname, tif_id, psd_id, preview, create_time, tif_lan_geo, os, device
+		from
+		users inner join (
+		select tif.id as tif_id, psd_id, tif.preview, designer_id, lan_geo as tif_lan_geo, create_time,  os, device
+		from
+		tif inner join psd
+		on tif.psd_id = psd.id
+		) psd_tif
+		on users.id = psd_tif.designer_id`);
+		res.render("content/findscreen", {
+			rows : results
+		});
+	}
+	catch(err) {
+
+	}
+	finally {
+		await db.close();
+	}
+}
+
 exports.GETscreenshot = async (req, res) => {
 	if (!req.query.psd_id)
 	{
-		res.send('finding');
-		// res.redirect('/findscreenshot')
+		res.redirect('/findscreenshot')
 		return;
 	}
 

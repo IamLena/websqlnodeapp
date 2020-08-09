@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+	h1 filtering
+	table.table.table-sm.table-dark
+		thead
+			tr
+				th(scope="col") #
+				th(scope="col") os
+				th(scope="col") device
+				th(scope="col") lan_geo
+				th(scope="col") designer
+				th(scope="col") preview
+				th(scope="col") created
+		tbody
+			for row in rows
+				tr
+					th(scope="row") #{row.tif_id}
+					td #{row.os}
+					td #{row.device}
+					td #{row.tif_lan_geo}
+					td #{row.firstname} #{row.lastname}
+					td
+						img.smalimg(src=`${row.preview}`)
+					td #{row.create_time}
