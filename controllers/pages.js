@@ -65,15 +65,30 @@ exports.GETfindscreenshot = async (req, res) => {
 	} );
 
 	try {
-		const results = await db.query(`select firstname, lastname, tif_id, psd_id, preview, create_time, tif_lan_geo, os, device
+		const results = await db.query(`select devices.name as dev_name, os_name, language, country, firstname, lastname, preview, create_time
+		from
+		devices inner join (
+		select os.name as os_name, language, country, firstname, lastname, preview, create_time, device
+		from os
+		inner join (
+		select language, country, firstname, lastname, preview, create_time, os, device
+		from
+		lan_geo inner join (
+		select firstname, lastname, preview, create_time, tif_lan_geo, os, device
 		from
 		users inner join (
 		select tif.id as tif_id, psd_id, tif.preview, designer_id, lan_geo as tif_lan_geo, create_time,  os, device
 		from
 		tif inner join psd
 		on tif.psd_id = psd.id
-		) psd_tif
-		on users.id = psd_tif.designer_id`);
+		) tmp1
+		on users.id = tmp1.designer_id
+		) tmp2
+		on lan_geo.lan_geo = tmp2.tif_lan_geo
+		) tmp3
+		on os.nickname = tmp3.os
+		) tmp4
+		on devices.nickname = tmp4.device`);
 		res.render("content/findscreen", {
 			rows : results
 		});

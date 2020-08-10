@@ -5,7 +5,6 @@ block content
 	table.table.table-sm.table-dark
 		thead
 			tr
-				th(scope="col") #
 				th(scope="col") os
 				th(scope="col") device
 				th(scope="col") lan_geo
@@ -15,10 +14,10 @@ block content
 		tbody
 			for row in rows
 				tr
-					th(scope="row") #{row.tif_id}
-					td #{row.os}
-					td #{row.device}
-					td #{row.tif_lan_geo}
+					//- th(scope="row")
+					td #{row.os_name}
+					td #{row.dev_name}
+					td #{row.language} (#{row.country})
 					td #{row.firstname} #{row.lastname}
 					td
 						img.smalimg(src=`${row.preview}`)
