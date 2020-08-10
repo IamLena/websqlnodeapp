@@ -184,3 +184,57 @@ exports.POSTCreateRecord = async (req, res) => {
 	res.redirect(`/screenshot/?psd_id=${psd_id}`);
 	}
 }
+
+
+exports.GETLocalizeRecord = async (req, res) => {
+	const db = new Database( {
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	} );
+
+	try {
+		const lan_geo_results = await db.query('select * from lan_geo');
+		res.render('designer/localize', {
+			type : req.session.user.type,
+			m_lans : lan_geo_results
+		})
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+}
+
+exports.POSTLocalizeRecord = async (req, res) => {
+	res.send('not done yet');
+}
+
+
+exports.GETModifyRecord = async (req, res) => {
+	const db = new Database( {
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	} );
+
+	try {
+		res.render('designer/modify', {
+			type : req.session.user.type
+		})
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+}
+
+exports.POSTModifyRecord = async (req, res) => {
+	res.send('not done yet');
+}

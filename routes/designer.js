@@ -12,10 +12,10 @@ const redirectLogin = (req, res, next) => {
 router.get('/create', redirectLogin, DesignerController.GETCreateRecord);
 router.post('/create', redirectLogin, DesignerController.POSTCreateRecord);
 
-// router.get('/localize', redirectLogin, DesignerController.GETLocalizeRecord);
-// router.post('/localize', redirectLogin, DesignerController.POSTLocalizeRecord);
+router.get('/localize', redirectLogin, DesignerController.GETLocalizeRecord);
+router.post('/localize', redirectLogin, DesignerController.POSTLocalizeRecord);
 
-// router.get('/modify', redirectLogin, DesignerController.GETModifyRecord);
-// router.post('/modify', redirectLogin, DesignerController.POSTModifyRecord);
+router.get('/modify', redirectLogin, DesignerController.GETModifyRecord);
+router.post('/modify', redirectLogin, DesignerController.POSTModifyRecord);
 
 module.exports = router;

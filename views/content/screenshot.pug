@@ -16,6 +16,7 @@ block content
 					| by
 					a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
 				p #{m_screen.create_time}
+				h3(style="color: red") versions and parents
 			div.col-sm
 				img.personalpic(src=`${m_screen.preview}`)
 		a.btn.btn-secondary.mb-2(href=`/download_psd/?psd_id=${m_screen.id}`) download psd

@@ -65,16 +65,18 @@ exports.GETfindscreenshot = async (req, res) => {
 	} );
 
 	try {
-		const results = await db.query(`select devices.name as dev_name, os_name, language, country, firstname, lastname, preview, create_time
+		const os_results = await db.query('select * from os');
+		const sqlquery = `
+		select devices.name as dev_name, os_name, language, country, firstname, lastname, preview, create_time, psd_id, designer_id
 		from
 		devices inner join (
-		select os.name as os_name, language, country, firstname, lastname, preview, create_time, device
+		select os.name as os_name, language, country, firstname, lastname, preview, create_time, device, psd_id, designer_id
 		from os
 		inner join (
-		select language, country, firstname, lastname, preview, create_time, os, device
+		select language, country, firstname, lastname, preview, create_time, os, device, psd_id, designer_id
 		from
 		lan_geo inner join (
-		select firstname, lastname, preview, create_time, tif_lan_geo, os, device
+		select firstname, lastname, preview, create_time, tif_lan_geo, os, device, psd_id, designer_id
 		from
 		users inner join (
 		select tif.id as tif_id, psd_id, tif.preview, designer_id, lan_geo as tif_lan_geo, create_time,  os, device
@@ -88,9 +90,14 @@ exports.GETfindscreenshot = async (req, res) => {
 		) tmp3
 		on os.nickname = tmp3.os
 		) tmp4
-		on devices.nickname = tmp4.device`);
+		on devices.nickname = tmp4.device`
+		// const desc = true;
+		// if (desc)
+		// 	sqlquery = sqlquery.concat(`order by create_time desc`);
+		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
-			rows : results
+			rows : results,
+			oss : os_results
 		});
 	}
 	catch(err) {

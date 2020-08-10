@@ -2,6 +2,18 @@ extends ../layout
 
 block content
 	h1 filtering
+	form(action="/findscreenshot", method="post")
+		div.nav-item.dropdown.ml-3
+			a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+				| os
+			div.dropdown-menu(aria-labelledby="navbarDropdown")
+				//- add scroll
+				for os_item in oss
+					div
+						input(type="checkbox", id=`${os_item.nickname}`, name=`${os_item.nickname}`, value=`${os_item.nickname}`)
+						label(for=`${os_item.nickname}`) #{os_item.name}
+		button(type="submit") apply
+
 	table.table.table-sm.table-dark
 		thead
 			tr
@@ -11,14 +23,17 @@ block content
 				th(scope="col") designer
 				th(scope="col") preview
 				th(scope="col") created
+				th(scope="col") link
 		tbody
 			for row in rows
 				tr
-					//- th(scope="row")
 					td #{row.os_name}
 					td #{row.dev_name}
 					td #{row.language} (#{row.country})
-					td #{row.firstname} #{row.lastname}
+					td
+						a(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
 					td
 						img.smalimg(src=`${row.preview}`)
 					td #{row.create_time}
+					td
+						a(href=`/screenshot/?psd_id=${row.psd_id}`) visit
