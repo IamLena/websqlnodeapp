@@ -32,10 +32,10 @@
 
 .bottom{position:absolute; bottom:0;}
 
-.dropdown:hover .dropdown-menu {
+/* .dropdown:hover .dropdown-menu {
 	display: block;
 	cursor: pointer;
-}
+} */
 
 .input-file{
 	display : none;

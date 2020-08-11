@@ -65,7 +65,11 @@ exports.GETfindscreenshot = async (req, res) => {
 	} );
 
 	try {
-		const os_results = await db.query('select * from os');
+		const os_results = await db.query('select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname');
+		const devices = await db.query('select * from devices');
+		const lans = await db.query('select * from lan_geo');
+		const designers = await db.query('select * from users where type=1');
+
 		const sqlquery = `
 		select devices.name as dev_name, os_name, language, country, firstname, lastname, preview, create_time, psd_id, designer_id
 		from
@@ -97,7 +101,10 @@ exports.GETfindscreenshot = async (req, res) => {
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
 			rows : results,
-			oss : os_results
+			m_os : os_results,
+			m_dev : devices,
+			m_lan : lans,
+			m_designer : designers
 		});
 	}
 	catch(err) {

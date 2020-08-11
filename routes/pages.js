@@ -18,4 +18,8 @@ router.get('/download_tif', PagesController.GETdownloadtif);
 router.get('/listoflocals', PagesController.GETlistoflocals);
 router.get('/listofversions', PagesController.GETlistofversions);
 
+router.post('/filtering', (req, res) => {
+	res.send(req.body);
+})
+
 module.exports = router;
