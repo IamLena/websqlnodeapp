@@ -4,19 +4,19 @@ block content
 	form(action='/designer/localize', method='post', enctype="multipart/form-data")
 		div.input-group.form-row.mb-1
 			div.input-group-prepend
-				label.input-group-text(for="inputcode") link
-			if (m_code)
-				input.form-control(id="inputcode", placeholder="enter code", name="code", value=`${m_code}`)
+				label.input-group-text(for="inputid") id
+			if (m_id)
+				input.form-control(id="inputid", placeholder="enter id", name="id", value=`${m_id}`)
 			else
-				input.form-control(id="inputcode", placeholder="enter code", name="code")
+				input.form-control(id="inputid", placeholder="enter id", name="id")
 
 		div.input-group.form-row.mb-1
 			div.input-group-prepend
 				label.input-group-text(for="lan_geo") new language
 				select.custom-select(name="lan_geo", id="lan_geo")
-					//- if (m_pickedlan)
-					//- 	option(value=`${m_pickedlan.lan_geo}`) #{m_pickedlan.language} (#{m_pickedlan.country})
-					//- else
+					if (m_pickedlan)
+						option(value=`${m_pickedlan.lan_geo}`) #{m_pickedlan.language} (#{m_pickedlan.country})
+					else
 					option(value="undefined") choose language...
 					each lan in m_lans
 						option(value=lan.lan_geo) #{lan.language} (#{lan.country})

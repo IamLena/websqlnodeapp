@@ -26,7 +26,7 @@
 }
 
 .personalpic {
-	width: 100%;
+	width: 75%;
 	background-color : white;
 }
 
@@ -34,6 +34,7 @@
 
 .dropdown:hover .dropdown-menu {
 	display: block;
+	cursor: pointer;
 }
 
 .input-file{
