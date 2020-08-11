@@ -15,4 +15,7 @@ router.get('/screenshot', PagesController.GETscreenshot);
 router.get('/download_psd', PagesController.GETdownloadpsd);
 router.get('/download_tif', PagesController.GETdownloadtif);
 
+router.get('/listoflocals', PagesController.GETlistoflocals);
+router.get('/listofversions', PagesController.GETlistofversions);
+
 module.exports = router;

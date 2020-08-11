@@ -130,13 +130,25 @@ exports.GETscreenshot = async (req, res) => {
 		const osnames = await db.query("select * from os where nickname = ?", screen.os);
 		const devicenames = await db.query("select * from devices where nickname = ?", screen.device);
 		const languages = await db.query("select * from lan_geo where lan_geo = ?", screen.lan_geo);
+
+		let cur = screen;
+		while (cur.parent_id) {
+			let parents = await db.query('select lan_geo, id, parent_id from psd where id = ?', cur.parent_id);
+			let parent = parents[0];
+			if (parent.lan_geo != cur.lan_geo)
+				break;
+			cur = parent;
+		}
+		let origin_id = cur.parent_id
+
 		res.render('content/screenshot', {
 			m_screen : screen,
 			m_author_fullname : author_fullname,
 			m_author_id : screen.designer_id,
 			m_os_name : osnames[0],
 			m_device_name : devicenames[0],
-			m_language : `${languages[0].language} (${languages[0].country})`
+			m_language : `${languages[0].language} (${languages[0].country})`,
+			origin_id : origin_id,
 		});
 	}
 	catch(err)
@@ -188,6 +200,59 @@ exports.GETdownloadtif = async (req, res) => {
 			const tifs = await db.query("select * from tif where psd_id = ?", psd_id);
 			const tiffilename = tifs[0].filename;
 			res.download(tiffilename);
+		}
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+}
+
+exports.GETlistofversions = async (req, res) => {
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		let id = req.query.psd_id;
+		let psds = await db.query(`select * from psd where id = ${id}`);
+		let cur = psds[0];
+
+		let versions = await db.query(`select * from psd where code = "${cur.code}" && lan_geo = "${cur.lan_geo}"`);
+
+		res.send(versions);
+	}
+	catch(err) {
+		throw (err);
+	}
+	finally {
+		await db.close();
+	}
+}
+
+exports.GETlistoflocals = async (req, res) => {
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		let id = req.query.psd_id;
+		let psds = await db.query('select * from psd where id = ?', id);
+		if (psds.length > 0) {
+			let lan_geo = psds[0].lan_geo;
+			let children = await db.query(`select * from psd where parent_id = ${id} && lan_geo != "${lan_geo}"`);
+			res.send(children);
+			// res.render("content/findscreen", {
+			// 	rows : children
+			// });
 		}
 	}
 	catch(err) {

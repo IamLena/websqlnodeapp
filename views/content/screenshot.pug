@@ -16,6 +16,13 @@ block content
 					| by
 					a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
 				p #{m_screen.create_time}
+				if (origin_id)
+					p
+						a(href=`/screenshot/?psd_id=${origin_id}`) origin file
+				else
+					p
+						a(href=`/listoflocals/?psd_id=${m_screen.id}`) list of locals
+				a(href=`/listofversions/?psd_id=${m_screen.id}`) list of versions
 				h3(style="color: red") versions and parents
 			div.col-sm
 				img.personalpic(src=`${m_screen.preview}`)
