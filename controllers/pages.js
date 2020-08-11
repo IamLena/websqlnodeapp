@@ -56,6 +56,75 @@ exports.GETpersonalpage = async (req, res) => {
 		res.redirect("/");
 }
 
+exports.POSTfindscreenshot = async (req, res) => {
+	const {os, dev, lan, designer} = req.body;
+
+	const db = new Database( {
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	} );
+
+	try {
+
+		const os_results = await db.query('select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname');
+		const devices = await db.query('select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device');
+		const lans = await db.query('select distinct language, country, lan_geo.lan_geo from lan_geo inner join psd on lan_geo.lan_geo = psd.lan_geo');
+		const designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
+
+
+		let sqlquery = `
+		select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id
+		from
+		tif inner join psd
+		on tif.psd_id = psd.id`;
+
+		sqlquery = `select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id
+		from
+		os inner join (`.concat(sqlquery, ` ) tmp1
+		on os.nickname = tmp1.os`);
+		if (os)
+			sqlquery = sqlquery.concat(` and os.nickname = "${os}"`);
+
+		sqlquery = `select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id
+		from
+		devices inner join (`.concat(sqlquery, ` ) tmp2
+		on devices.nickname = tmp2.device`);
+		if (dev)
+			sqlquery = sqlquery.concat(` and devices.nickname = "${dev}"`);
+
+		sqlquery = `select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id
+		from
+		lan_geo inner join (`.concat(sqlquery, ` ) tmp3
+		on lan_geo.lan_geo = tmp3.tif_lan_geo`);
+		if (lan)
+			sqlquery = sqlquery.concat(` and lan_geo.lan_geo = "${lan}"`);
+
+		sqlquery = `select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id
+		from
+		users inner join (`.concat(sqlquery, ` ) tmp4
+		on users.id = tmp4.designer_id`);
+		if (designer)
+			sqlquery = sqlquery.concat(` and users.id = "${designer}"`);
+
+		const results = await db.query(sqlquery);
+		res.render("content/findscreen", {
+			rows : results,
+			m_os : os_results,
+			m_dev : devices,
+			m_lan : lans,
+			m_designer : designers
+		});
+	}
+	catch(err) {
+		throw err;
+	}
+	finally {
+		await db.close();
+	}
+}
+
 exports.GETfindscreenshot = async (req, res) => {
 	const db = new Database( {
 		host		: process.env.DATABASE_HOST,
@@ -66,9 +135,9 @@ exports.GETfindscreenshot = async (req, res) => {
 
 	try {
 		const os_results = await db.query('select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname');
-		const devices = await db.query('select * from devices');
-		const lans = await db.query('select * from lan_geo');
-		const designers = await db.query('select * from users where type=1');
+		const devices = await db.query('select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device');
+		const lans = await db.query('select distinct language, country, lan_geo.lan_geo from lan_geo inner join psd on lan_geo.lan_geo = psd.lan_geo');
+		const designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
 
 		const sqlquery = `
 		select devices.name as dev_name, os_name, language, country, firstname, lastname, preview, create_time, psd_id, designer_id
@@ -94,10 +163,8 @@ exports.GETfindscreenshot = async (req, res) => {
 		) tmp3
 		on os.nickname = tmp3.os
 		) tmp4
-		on devices.nickname = tmp4.device`
-		// const desc = true;
-		// if (desc)
-		// 	sqlquery = sqlquery.concat(`order by create_time desc`);
+		on devices.nickname = tmp4.device`;
+
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
 			rows : results,
@@ -108,7 +175,7 @@ exports.GETfindscreenshot = async (req, res) => {
 		});
 	}
 	catch(err) {
-
+		throw err;
 	}
 	finally {
 		await db.close();
