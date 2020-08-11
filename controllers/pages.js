@@ -58,6 +58,8 @@ exports.GETpersonalpage = async (req, res) => {
 
 exports.POSTfindscreenshot = async (req, res) => {
 	const {os, dev, lan, designer} = req.body;
+	let picked_os, picked_dev, picked_lan, picked_designer;
+	let os_results, devices, lans, designers;
 
 	const db = new Database( {
 		host		: process.env.DATABASE_HOST,
@@ -67,13 +69,6 @@ exports.POSTfindscreenshot = async (req, res) => {
 	} );
 
 	try {
-
-		const os_results = await db.query('select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname');
-		const devices = await db.query('select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device');
-		const lans = await db.query('select distinct language, country, lan_geo.lan_geo from lan_geo inner join psd on lan_geo.lan_geo = psd.lan_geo');
-		const designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
-
-
 		let sqlquery = `
 		select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id
 		from
@@ -85,28 +80,65 @@ exports.POSTfindscreenshot = async (req, res) => {
 		os inner join (`.concat(sqlquery, ` ) tmp1
 		on os.nickname = tmp1.os`);
 		if (os)
+		{
 			sqlquery = sqlquery.concat(` and os.nickname = "${os}"`);
+			picked_os = await db.query(`select * from os where os.nickname = "${os}"`);
+			picked_os = picked_os[0];
+			os_results = await db.query(`select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname and os.nickname != "${os}"`);
+		}
+		else if (dev)
+			os_results = await db.query(`select distinct nickname, name from os_dev_comp inner join (select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname) tmp1 on os_dev_comp.os_nick = tmp1.nickname`);
+		else
+			os_results = await db.query('select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname');
 
 		sqlquery = `select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id
 		from
 		devices inner join (`.concat(sqlquery, ` ) tmp2
 		on devices.nickname = tmp2.device`);
 		if (dev)
+		{
 			sqlquery = sqlquery.concat(` and devices.nickname = "${dev}"`);
+			picked_dev = await db.query(`select * from devices where devices.nickname = "${dev}"`);
+			picked_dev = picked_dev[0];
+			devices = await db.query(`select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device and devices.nickname != "${dev}"`);
+		}
+		else if (os)
+			devices = await db.query(`select distinct nickname, name from os_dev_comp inner join (select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device) tmp1 on os_dev_comp.dev_nick = tmp1.nickname`);
+		else
+			devices = await db.query('select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device');
 
 		sqlquery = `select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id
 		from
 		lan_geo inner join (`.concat(sqlquery, ` ) tmp3
 		on lan_geo.lan_geo = tmp3.tif_lan_geo`);
 		if (lan)
+		{
 			sqlquery = sqlquery.concat(` and lan_geo.lan_geo = "${lan}"`);
+			picked_lan = await db.query(`select * from lan_geo where lan_geo.lan_geo = "${lan}"`);
+			picked_lan = picked_lan[0];
+			lans = await db.query(`select distinct language, country, lan_geo.lan_geo from lan_geo inner join psd on lan_geo.lan_geo = psd.lan_geo and lan_geo.lan_geo != "${lan}"`);
+		}
+		else
+			lans = await db.query('select distinct language, country, lan_geo.lan_geo from lan_geo inner join psd on lan_geo.lan_geo = psd.lan_geo');
 
 		sqlquery = `select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id
 		from
 		users inner join (`.concat(sqlquery, ` ) tmp4
 		on users.id = tmp4.designer_id`);
 		if (designer)
+		{
 			sqlquery = sqlquery.concat(` and users.id = "${designer}"`);
+			picked_designer = await db.query(`select id, firstname, lastname from users where id = "${designer}"`);
+			picked_designer = picked_designer[0];
+			designers = await db.query(`select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 and users.id != "${designer}"`);
+		}
+		else
+			designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
+
+		// if (req.body.create_time)
+		// 	sqlquery = sqlquery.concat(`order by create_time decs`);
+		// else
+		// 	sqlquery = sqlquery.concat(`order by create_time acs`);
 
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
@@ -114,7 +146,11 @@ exports.POSTfindscreenshot = async (req, res) => {
 			m_os : os_results,
 			m_dev : devices,
 			m_lan : lans,
-			m_designer : designers
+			m_designer : designers,
+			picked_os : picked_os,
+			picked_dev : picked_dev,
+			picked_lan : picked_lan,
+			picked_designer : picked_designer
 		});
 	}
 	catch(err) {
