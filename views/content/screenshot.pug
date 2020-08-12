@@ -6,16 +6,14 @@ block content
 		div.row
 			div.col-sm
 				p
-				| for
-				a(href="#")  #{m_os_name.name}
-				a(href="#")  #{m_device_name.name}
+				| for #{m_os_name.name},  #{m_device_name.name}
 				p #{m_language}
 				p #{m_screen.content}
 				p #{m_screen.height} x #{m_screen.width}
 				p
 					| by
 					a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
-				p #{m_screen.create_time}
+				p #{m_screen.create_time.toUTCString().split(' ').slice(0, 5).join(' ')}
 				if (origin_id)
 					p
 						a(href=`/screenshot/?psd_id=${origin_id}`) origin file

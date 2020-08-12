@@ -321,9 +321,33 @@ exports.GETlistofversions = async (req, res) => {
 		let psds = await db.query(`select * from psd where id = ${id}`);
 		let cur = psds[0];
 
-		let versions = await db.query(`select * from psd where code = "${cur.code}" && lan_geo = "${cur.lan_geo}"`);
+		let sqlquery = `
+		select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version
+		from users inner join
+		(select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id, version
+			from lan_geo inner join
+			(select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id, version
+				from devices inner join (select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id, version
+					from os inner join
+					( select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id, version
+						from tif inner join psd
+						on tif.psd_id = psd.id and psd.code = "${cur.code}") tmp1
+					on os.nickname = tmp1.os) tmp2
+				on devices.nickname = tmp2.device ) tmp3
+			on lan_geo.lan_geo = tmp3.tif_lan_geo and tmp3.tif_lan_geo = "${cur.lan_geo}") tmp4
+		on users.id = tmp4.designer_id
+		order by create_time desc`
 
-		res.send(versions);
+		let versions =  await db.query(sqlquery);
+
+		// res.send(versions);
+		res.render("content/findscreen", {
+			rows : versions,
+			m_os : [],
+			m_dev : [],
+			m_lan : [],
+			m_designer : []
+		});
 	}
 	catch(err) {
 		throw (err);
@@ -346,15 +370,37 @@ exports.GETlistoflocals = async (req, res) => {
 		let psds = await db.query('select * from psd where id = ?', id);
 		if (psds.length > 0) {
 			let lan_geo = psds[0].lan_geo;
-			let children = await db.query(`select * from psd where parent_id = ${id} && lan_geo != "${lan_geo}"`);
-			res.send(children);
-			// res.render("content/findscreen", {
-			// 	rows : children
-			// });
+			// let children = await db.query(`select * from psd where parent_id = ${id} && lan_geo != "${lan_geo}"`);
+
+			let sqlquery = `
+		select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version
+		from users inner join
+		(select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id, version
+			from lan_geo inner join
+			(select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id, version
+				from devices inner join (select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id, version
+					from os inner join
+					( select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id, version
+						from tif inner join psd
+						on tif.psd_id = psd.id and psd.parent_id = "${id}") tmp1
+					on os.nickname = tmp1.os) tmp2
+				on devices.nickname = tmp2.device ) tmp3
+			on lan_geo.lan_geo = tmp3.tif_lan_geo and tmp3.tif_lan_geo != "${lan_geo}") tmp4
+		on users.id = tmp4.designer_id
+		order by create_time desc`
+
+			let children = await db.query(sqlquery);
+			res.render("content/findscreen", {
+				rows : children,
+				m_os : [],
+				m_dev : [],
+				m_lan : [],
+				m_designer : []
+			});
 		}
 	}
 	catch(err) {
-		res.send(err);
+		throw err;
 	}
 	finally {
 		await db.close();
