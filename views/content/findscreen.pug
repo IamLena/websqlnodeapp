@@ -15,6 +15,8 @@ block content
 								option(value="") os
 							each item in m_os
 								option(value=item.nickname) #{item.name}
+							if (picked_os)
+								option(value="") reset
 
 					th(scope="col")
 						select.dropdown.custom-select(name="dev" id="devdrop" onchange="this.form.submit()")
@@ -24,6 +26,8 @@ block content
 								option(value="") device
 							each item in m_dev
 								option(value=item.nickname) #{item.name}
+							if (picked_dev)
+								option(value="") reset
 
 					th(scope="col")
 						select.dropdown.custom-select(name="lan" id="landrop" onchange="this.form.submit()")
@@ -33,6 +37,8 @@ block content
 								option(value="") language (country)
 							each item in m_lan
 								option(value=item.lan_geo) #{item.language} (#{item.country})
+							if (picked_lan)
+								option(value="") reset
 
 					th(scope="col")
 						select.dropdown.custom-select(name="designer" id="designerdrop" onchange="this.form.submit()")
@@ -42,16 +48,12 @@ block content
 								option(value="") designer
 							each item in m_designer
 								option(value=item.id) #{item.firstname} #{item.lastname}
+							if (picked_designer)
+								option(value="") reset
 
 					th(scope="col") preview
-
-					th(scope="col")
-						select.dropdown.custom-select(name="create_time" id="create_timedrop" onchange="this.form.submit()")
-							option(value=false) create time
-							option(value=false) latest first
-							option(value=true) earliest first
-
-					th(scope="col") link
+					th(scope="col") create_time
+					th(scope="col") version
 			tbody
 				for row in rows
 					tr
@@ -62,6 +64,6 @@ block content
 							a(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
 						td
 							img.smalimg(src=`${row.preview}`)
-						td #{row.create_time}
+						td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
 						td
-							a(href=`/screenshot/?psd_id=${row.psd_id}`) visit
+							a(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}

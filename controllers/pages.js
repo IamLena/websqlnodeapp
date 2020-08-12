@@ -70,12 +70,12 @@ exports.POSTfindscreenshot = async (req, res) => {
 
 	try {
 		let sqlquery = `
-		select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id
+		select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id, version
 		from
 		tif inner join psd
 		on tif.psd_id = psd.id`;
 
-		sqlquery = `select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id
+		sqlquery = `select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id, version
 		from
 		os inner join (`.concat(sqlquery, ` ) tmp1
 		on os.nickname = tmp1.os`);
@@ -91,7 +91,7 @@ exports.POSTfindscreenshot = async (req, res) => {
 		else
 			os_results = await db.query('select distinct os.nickname, os.name from os inner join psd where psd.os = os.nickname');
 
-		sqlquery = `select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id
+		sqlquery = `select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id, version
 		from
 		devices inner join (`.concat(sqlquery, ` ) tmp2
 		on devices.nickname = tmp2.device`);
@@ -107,7 +107,7 @@ exports.POSTfindscreenshot = async (req, res) => {
 		else
 			devices = await db.query('select distinct devices.nickname, devices.name from devices inner join psd on devices.nickname = psd.device');
 
-		sqlquery = `select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id
+		sqlquery = `select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id, version
 		from
 		lan_geo inner join (`.concat(sqlquery, ` ) tmp3
 		on lan_geo.lan_geo = tmp3.tif_lan_geo`);
@@ -121,7 +121,7 @@ exports.POSTfindscreenshot = async (req, res) => {
 		else
 			lans = await db.query('select distinct language, country, lan_geo.lan_geo from lan_geo inner join psd on lan_geo.lan_geo = psd.lan_geo');
 
-		sqlquery = `select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id
+		sqlquery = `select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version
 		from
 		users inner join (`.concat(sqlquery, ` ) tmp4
 		on users.id = tmp4.designer_id`);
@@ -135,10 +135,7 @@ exports.POSTfindscreenshot = async (req, res) => {
 		else
 			designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
 
-		// if (req.body.create_time)
-		// 	sqlquery = sqlquery.concat(`order by create_time decs`);
-		// else
-		// 	sqlquery = sqlquery.concat(`order by create_time acs`);
+		sqlquery = sqlquery.concat(` order by create_time desc`);
 
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
@@ -176,30 +173,21 @@ exports.GETfindscreenshot = async (req, res) => {
 		const designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
 
 		const sqlquery = `
-		select devices.name as dev_name, os_name, language, country, firstname, lastname, preview, create_time, psd_id, designer_id
-		from
-		devices inner join (
-		select os.name as os_name, language, country, firstname, lastname, preview, create_time, device, psd_id, designer_id
-		from os
-		inner join (
-		select language, country, firstname, lastname, preview, create_time, os, device, psd_id, designer_id
-		from
-		lan_geo inner join (
-		select firstname, lastname, preview, create_time, tif_lan_geo, os, device, psd_id, designer_id
-		from
-		users inner join (
-		select tif.id as tif_id, psd_id, tif.preview, designer_id, lan_geo as tif_lan_geo, create_time,  os, device
-		from
-		tif inner join psd
-		on tif.psd_id = psd.id
-		) tmp1
-		on users.id = tmp1.designer_id
-		) tmp2
-		on lan_geo.lan_geo = tmp2.tif_lan_geo
-		) tmp3
-		on os.nickname = tmp3.os
-		) tmp4
-		on devices.nickname = tmp4.device`;
+		select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version
+		from users inner join
+		(select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id, version
+			from lan_geo inner join
+			(select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id, version
+				from devices inner join (select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id, version
+					from os inner join
+					( select os, device, lan_geo as tif_lan_geo, designer_id, tif.preview, create_time, psd_id, version
+						from tif inner join psd
+						on tif.psd_id = psd.id ) tmp1
+					on os.nickname = tmp1.os) tmp2
+				on devices.nickname = tmp2.device ) tmp3
+			on lan_geo.lan_geo = tmp3.tif_lan_geo ) tmp4
+		on users.id = tmp4.designer_id
+		order by create_time desc`;
 
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
