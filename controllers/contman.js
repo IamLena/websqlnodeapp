@@ -2,6 +2,7 @@ const mysql = require('mysql');
 const fs = require("fs");
 const Database = require('../db');
 const PSD = require('psd');
+const { execPath } = require('process');
 
 exports.GETCreateMatrix = async (req, res) => {
 	res.render('contman/create', {
@@ -44,7 +45,7 @@ exports.POSTCreateMatrix = async (req, res) => {
 		}
 		await db.query('INSERT INTO pages SET ?', newpage);
 		res.send('done');
-		//res.redirect(`/pages/?page_id=${id}`);
+		//res.redirect(`/matrix/?page_id=${id}`);
 	}
 	catch(err) {
 		res.send(err);
@@ -53,4 +54,10 @@ exports.POSTCreateMatrix = async (req, res) => {
 	finally {
 		await db.close();
 	}
+}
+
+exports.GETaddplaceholder = async (req, res) => {
+	res.render('contman/addplaceholder', {
+		type : req.session.user.type
+	})
 }

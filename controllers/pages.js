@@ -405,3 +405,43 @@ exports.GETlistoflocals = async (req, res) => {
 		await db.close();
 	}
 }
+
+exports.GETmatrix = async (req, res) => {
+	const page_id =  req.query.page_id;
+	if (!page_id)
+	{
+		res.send('will find it!');
+	}
+	else {
+		const db = new Database({
+			host		: process.env.DATABASE_HOST,
+			user		: process.env.DATABASE_USER,
+			password	: process.env.DATABASE_PASSWORD,
+			database	: process.env.DATABASE_NAME
+		});
+
+		try {
+			let page = await db.query('select * from pages where id = ?', page_id);
+			if (page.length > 0)
+			{
+				page = page[0];
+				let author = await db.query('select * from users where id = ?', page.cm_id);
+				if (author.length > 0) {
+					author = author[0];
+					res.render('content/matrix', {
+						m_page : page,
+						m_author_id : author.id,
+						m_author_fullname : `${author.firstname} ${author.lastname}`
+					});
+				}
+			}
+		}
+		catch(err) {
+			res.send(err);
+			throw(err);
+		}
+		finally {
+			await db.close();
+		}
+	}
+}

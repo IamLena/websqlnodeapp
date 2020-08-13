@@ -20,6 +20,8 @@ router.get('/screenshot', redirectLogin, PagesController.GETscreenshot);
 router.get('/download_psd', redirectLogin, PagesController.GETdownloadpsd);
 router.get('/download_tif', redirectLogin, PagesController.GETdownloadtif);
 
+router.get('/matrix', redirectLogin, PagesController.GETmatrix);
+
 router.get('/listoflocals', redirectLogin, PagesController.GETlistoflocals);
 router.get('/listofversions', redirectLogin, PagesController.GETlistofversions);
 

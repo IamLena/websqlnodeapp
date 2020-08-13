@@ -1,0 +1,32 @@
+extends ../layout
+
+block content
+	form(action='/contman/addplaceholder', method='post')
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputlink") link
+			if (m_link)
+				input.form-control(id="inputlink", placeholder="enter link", name="link", value=`${m_link}`)
+			else
+				input.form-control(id="inputlink", placeholder="enter link", name="link")
+
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputcomment") comment
+			if (m_comment)
+				input.form-control(id="inputcomment", placeholder="enter comment", name="comment", value=`${m_comment}`)
+			else
+				input.form-control(id="inputcomment", placeholder="enter comment", name="comment")
+
+		div.input-group.form-row.mb-1
+			label.btn.btn-file(for="inputpreview" id="add preview") add preview
+			input.input-file(type="file" id="inputpreview", name="preview", accept=".png", onchange="changefile('add preview', this.files[0].name)")
+
+
+		button.btn.btn-block.btn-success(type='submit') upload
+
+		if (message)
+			p.text-center.text-warning #{message}
+		else
+			p.text-center.text-warning &nbsp;
+
