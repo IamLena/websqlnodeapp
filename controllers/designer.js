@@ -232,6 +232,9 @@ exports.GETLocalizeRecord = async (req, res) => {
 }
 
 const check_if_localized = async (res, psd, lan_geo) => {
+	if (psd.lan_geo == lan_geo)
+			return true;
+
 	const db = new Database( {
 		host		: process.env.DATABASE_HOST,
 		user		: process.env.DATABASE_USER,
@@ -279,7 +282,7 @@ exports.POSTLocalizeRecord = async (req, res) => {
 			else {
 				const prev_psd = prev_psd_res[0];
 				if (await check_if_localized(res, prev_psd, lan_geo))
-					await localizererender(req, res, psd_id, lan_geo, "already localized ADD LINK TO IT");
+					await localizererender(req, res, psd_id, lan_geo, "already localized");
 				else {
 					const version = 1;
 					const initals = req.session.user.initials;

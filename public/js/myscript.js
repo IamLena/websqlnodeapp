@@ -4,3 +4,10 @@ const showdropdown = (id) => {
 	else
 		document.getElementById(id).style.display = "block";
 }
+
+const changefile = (id, value) => {
+	if (value)
+		document.getElementById(id).innerHTML = value;
+	else
+		document.getElementById(id).innerHTML = id;
+}
