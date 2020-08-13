@@ -93,13 +93,13 @@ exports.POSTaddplaceholder = async (req, res) => {
 		id = id[0].id;
 
 		let previewfile = req.files.preview;
-		let filename = `public/placeholders/${page_id}/${id}.png`
+		let filename = `/placeholders/${page_id}/${id}.png`
 
 		await fs.mkdir(`public/placeholders/${page_id}`, (err) => {
 			if (err && err.code != "EEXIST") throw err;
 		});
 
-		previewfile.mv(filename, (err) => {
+		previewfile.mv(`public/${filename}`, (err) => {
 			if (err) throw err;
 		});
 
@@ -111,7 +111,7 @@ exports.POSTaddplaceholder = async (req, res) => {
 			preview : filename
 		}
 		await db.query('INSERT INTO placeholder SET ?', newplaceholder);
-		res.send('done');
+		res.redirect(`/matrix/?page_id=${page_id}`);
 	}
 	catch(err) {
 		res.send(err);

@@ -7,6 +7,22 @@ block content
 	p
 		| by
 		a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
+
+	table.table.table-sm.table-dark
+		thead
+			tr
+				th(scope="col") link
+				th(scope="col") preview
+				th(scope="col") comment
+		tbody
+			for row in m_rows
+				tr
+					td
+						a(href=`${row.link}`) #{row.link}
+					td
+						img.smalimg(src=`${row.preview}`)
+					td #{row.comment}
+
 	form(action="/contman/addplaceholder", method="post")
 		input(type="hidden" name="id" value=`${m_page.id}`)
 		button.btn.btn-secondary(type="sumbit") add placeholder

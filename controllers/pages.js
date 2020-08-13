@@ -173,9 +173,9 @@ exports.GETfindscreenshot = async (req, res) => {
 		const designers = await db.query('select distinct users.id, users.firstname, users.lastname from users inner join psd on users.id = psd.designer_id and users.type=1 ');
 
 		const sqlquery = `
-		select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version
+		select os_name, dev_name, language, country, users.id, tif_lan_geo, users.firstname, users.lastname, preview, create_time, psd_id, version
 		from users inner join
-		(select os_name, dev_name, lan_geo.language, lan_geo.country, designer_id, preview, create_time, psd_id, version
+		(select os_name, dev_name, lan_geo.language, lan_geo.country, tif_lan_geo, designer_id, preview, create_time, psd_id, version
 			from lan_geo inner join
 			(select os_name, devices.name as dev_name, tif_lan_geo, designer_id, preview, create_time, psd_id, version
 				from devices inner join (select os.name as os_name, device, tif_lan_geo, designer_id, preview, create_time, psd_id, version
@@ -188,6 +188,7 @@ exports.GETfindscreenshot = async (req, res) => {
 			on lan_geo.lan_geo = tmp3.tif_lan_geo ) tmp4
 		on users.id = tmp4.designer_id
 		order by create_time desc`;
+
 
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
@@ -422,6 +423,7 @@ exports.GETmatrix = async (req, res) => {
 
 		try {
 			let page = await db.query('select * from pages where id = ?', page_id);
+			let rows = await db.query('select * from placeholder where page_id = ?', page_id);
 			if (page.length > 0)
 			{
 				page = page[0];
@@ -431,7 +433,8 @@ exports.GETmatrix = async (req, res) => {
 					res.render('content/matrix', {
 						m_page : page,
 						m_author_id : author.id,
-						m_author_fullname : `${author.firstname} ${author.lastname}`
+						m_author_fullname : `${author.firstname} ${author.lastname}`,
+						m_rows : rows
 					});
 				}
 			}
