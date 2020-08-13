@@ -388,7 +388,7 @@ exports.POSTModifyRecord = async (req, res) => {
 			message : "provide data"
 		});
 	}
-	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || req.files.preview) {
+	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || !req.files.preview) {
 		res.render('designer/modify', {
 			type : req.session.user.type,
 			m_id : psd_id,
