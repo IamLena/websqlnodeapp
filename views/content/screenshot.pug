@@ -13,7 +13,8 @@ block content
 				p
 					| by
 					a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
-				p #{m_screen.create_time.toUTCString().split(' ').slice(0, 5).join(' ')}
+				//- p #{m_screen.create_time.toUTCString().split(' ').slice(0, 5).join(' ')}
+				p #{m_screen.create_time.toLocaleString()}
 				if (origin_id)
 					p
 						a(href=`/screenshot/?psd_id=${origin_id}`) origin file

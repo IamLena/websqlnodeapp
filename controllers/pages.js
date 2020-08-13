@@ -370,7 +370,6 @@ exports.GETlistoflocals = async (req, res) => {
 		let psds = await db.query('select * from psd where id = ?', id);
 		if (psds.length > 0) {
 			let lan_geo = psds[0].lan_geo;
-			// let children = await db.query(`select * from psd where parent_id = ${id} && lan_geo != "${lan_geo}"`);
 
 			let sqlquery = `
 		select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version

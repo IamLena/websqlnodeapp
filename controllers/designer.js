@@ -3,18 +3,7 @@ const fs = require("fs");
 const Database = require('../db');
 const PSD = require('psd');
 
-const getnow = () => {
-	let date = new Date();
-	date = date.getUTCFullYear() + '-' +
-		('00' + (date.getUTCMonth()+1)).slice(-2) + '-' +
-		('00' + date.getUTCDate()).slice(-2) + ' ' +
-		('00' + date.getUTCHours()).slice(-2) + ':' +
-		('00' + date.getUTCMinutes()).slice(-2) + ':' +
-		('00' + date.getUTCSeconds()).slice(-2);
-	return date;
-}
-
-const uploadfiles = (grabfile, psdfile, tiffile, filename) => {
+const uploadfiles = (grabfile, psdfile, tiffile, previewfile, filename) => {
 	grabfile.mv(`uploads/${filename}_grab.png`, (err) => {
 		if (err) throw err;
 	});
@@ -27,9 +16,13 @@ const uploadfiles = (grabfile, psdfile, tiffile, filename) => {
 		if (err) throw err;
 	});
 
-	const previewfile = PSD.open(`uploads/${filename}.psd`).then(function (psd) {
-		return psd.image.saveAsPng(`public/previews/${filename}.png`);
+	previewfile.mv(`public/previews/${filename}.png`, (err) => {
+		if (err) throw err;
 	});
+
+	// const previewfile = PSD.open(`uploads/${filename}.psd`).then(function (psd) {
+	// 	return psd.image.saveAsPng(`public/previews/${filename}.png`);
+	// });
 }
 
 const createfolders = async (os, device) => {
@@ -124,12 +117,26 @@ exports.POSTCreateRecord = async (req, res) => {
 	if (!code || !content || !height || !width || !ppi || os=="undefined" || device=="undefined") {
 		await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "provide data");
 	}
-	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif) {
+	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || !req.files.preview) {
 		await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "add files");
 	}
 	else {
-		const version = 1;
-		let date = getnow();
+		const db = new Database( {
+			host		: process.env.DATABASE_HOST,
+			user		: process.env.DATABASE_USER,
+			password	: process.env.DATABASE_PASSWORD,
+			database	: process.env.DATABASE_NAME
+		} );
+
+		const sizes = await db.query(`select height, width, ppi from devices where nickname = "${device}"`);
+		if ((height % sizes[0].height) != (width % sizes[0].width) && (height % sizes[0].width) != (width % sizes[0].height))
+		{
+			await db.close();
+			await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "wrong sizes");
+		}
+		const version = 1
+		let datetime = await db.query('select now() as now');
+		datetime = datetime[0].now;
 		const cpcontent = content;
 		content = content.replace(/ /g, "-");
 		const initals = req.session.user.initials;
@@ -140,14 +147,12 @@ exports.POSTCreateRecord = async (req, res) => {
 		const grabfile = req.files.grab;
 		const psdfile = req.files.psd;
 		const tiffile = req.files.tif;
-		uploadfiles(grabfile, psdfile, tiffile, filename);
+		const previewfile = req.files.preview;
+		uploadfiles(grabfile, psdfile, tiffile, previewfile, filename);
 
-		const db = new Database( {
-			host		: process.env.DATABASE_HOST,
-			user		: process.env.DATABASE_USER,
-			password	: process.env.DATABASE_PASSWORD,
-			database	: process.env.DATABASE_NAME
-		} );
+
+
+		if (!lan_geo) lan_geo = req.session.user.lan_geo;
 
 		try {
 			await db.query('INSERT INTO psd SET ?', {
@@ -155,7 +160,7 @@ exports.POSTCreateRecord = async (req, res) => {
 				designer_id : req.session.user.id,
 				lan_geo : lan_geo,
 				version : 1,
-				create_time : date,
+				create_time : datetime,
 				width : width,
 				height : height,
 				scale : 1,
@@ -257,7 +262,7 @@ exports.POSTLocalizeRecord = async (req, res) => {
 
 	if (!psd_id || lan_geo =="undefined")
 		await localizererender(req, res, psd_id, lan_geo, "provide data");
-	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif)
+	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || !req.files.preview)
 		await localizererender(req, res, psd_id, lan_geo, "add files");
 	else {
 		const db = new Database( {
@@ -278,7 +283,9 @@ exports.POSTLocalizeRecord = async (req, res) => {
 				else {
 					const version = 1;
 					const initals = req.session.user.initials;
-					let date = getnow();
+
+					let date = await db.query('select now() as now');
+					date = date[0].now;
 					const content = prev_psd.content.replace(/ /g, "-");
 
 					const filename = `${prev_psd.os}/${prev_psd.device}/${prev_psd.code}_${content}_${lan_geo}_${initals}_${version}`;
@@ -286,7 +293,8 @@ exports.POSTLocalizeRecord = async (req, res) => {
 					const grabfile = req.files.grab;
 					const psdfile = req.files.psd;
 					const tiffile = req.files.tif;
-					uploadfiles(grabfile, psdfile, tiffile, filename);
+					const previewfile =  req.files.preview;
+					uploadfiles(grabfile, psdfile, tiffile, previewfile, filename);
 
 					await db.query('INSERT INTO psd SET ?', {
 						code : prev_psd.code,
@@ -377,7 +385,7 @@ exports.POSTModifyRecord = async (req, res) => {
 			message : "provide data"
 		});
 	}
-	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif) {
+	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || req.files.preview) {
 		res.render('designer/modify', {
 			type : req.session.user.type,
 			m_id : psd_id,
@@ -394,7 +402,8 @@ exports.POSTModifyRecord = async (req, res) => {
 
 		try {
 			const initals = req.session.user.initials;
-			let date = getnow();
+			let date = await db.query('select now() as now');
+			date = date[0].now;
 
 			const prev_psd_res = await db.query('select * from psd where id = ?', psd_id);
 			if (prev_psd_res.length == 0) {
@@ -425,7 +434,8 @@ exports.POSTModifyRecord = async (req, res) => {
 			const grabfile = req.files.grab;
 			const psdfile = req.files.psd;
 			const tiffile = req.files.tif;
-			uploadfiles(grabfile, psdfile, tiffile, filename);
+			const previewfile = req.files.preview;
+			uploadfiles(grabfile, psdfile, tiffile, previewfile, filename);
 
 			await db.query('INSERT INTO psd SET ?', {
 				code : prev_psd.code,
