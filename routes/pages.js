@@ -23,6 +23,4 @@ router.get('/download_tif', redirectLogin, PagesController.GETdownloadtif);
 router.get('/listoflocals', redirectLogin, PagesController.GETlistoflocals);
 router.get('/listofversions', redirectLogin, PagesController.GETlistofversions);
 
-
-
 module.exports = router;

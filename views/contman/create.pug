@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+	form(action='/contman/create', method='post')
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputname") name
+			if (m_name)
+				input.form-control(id="inputname", placeholder="enter name", name="name", value=`${m_name}`)
+			else
+				input.form-control(id="inputname", placeholder="enter name", name="name")
+
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputlink") link
+			if (m_link)
+				input.form-control(id="inputlink", placeholder="enter link", name="link", value=`${m_link}`)
+			else
+				input.form-control(id="inputlink", placeholder="enter link", name="link")
+
+		div.input-group.form-row.mb-1
+			div.input-group-prepend
+				label.input-group-text(for="inputcomment") comment
+			if (m_comment)
+				input.form-control(id="inputcomment", placeholder="enter comment", name="comment", value=`${m_comment}`)
+			else
+				input.form-control(id="inputcomment", placeholder="enter comment", name="comment")
+
+		button.btn.btn-block.btn-success(type='submit') upload
+
+		if (message)
+			p.text-center.text-warning #{message}
+		else
+			p.text-center.text-warning &nbsp;
+

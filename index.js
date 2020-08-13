@@ -60,6 +60,7 @@ app.set('view engine', 'pug');
 app.use('/', require('./routes/pages'));
 app.use('/auth', require('./routes/auth'));
 app.use('/designer', require('./routes/designer'));
+app.use('/contman', require('./routes/contman'));
 
 app.listen('4000', () => {
 	console.log('server is listening on port 4000');
