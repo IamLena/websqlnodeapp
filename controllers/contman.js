@@ -44,8 +44,7 @@ exports.POSTCreateMatrix = async (req, res) => {
 			create_time : now
 		}
 		await db.query('INSERT INTO pages SET ?', newpage);
-		res.send('done');
-		//res.redirect(`/matrix/?page_id=${id}`);
+		res.redirect(`/matrix/?page_id=${id}`);
 	}
 	catch(err) {
 		res.send(err);
@@ -56,8 +55,69 @@ exports.POSTCreateMatrix = async (req, res) => {
 	}
 }
 
-exports.GETaddplaceholder = async (req, res) => {
-	res.render('contman/addplaceholder', {
-		type : req.session.user.type
-	})
+exports.POSTaddplaceholder = async (req, res) => {
+	const page_id = req.body.id;
+
+	let {comment, link} = req.body;
+	if (!link) {
+		res.render('contman/addplaceholder', {
+			type : req.session.user.type,
+			m_link : link,
+			m_comment : comment,
+			m_page_id : page_id,
+			message : "provide data"
+		});
+		return;
+	}
+	if (!req.files || !req.files.preview) {
+		res.render('contman/addplaceholder', {
+			type : req.session.user.type,
+			m_link : link,
+			m_comment : comment,
+			m_page_id : page_id,
+			message : "add preview file"
+		});
+		return;
+	}
+
+	if (!comment) comment = "";
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		let id = await db.query('select uuid() as id');
+		id = id[0].id;
+
+		let previewfile = req.files.preview;
+		let filename = `public/placeholders/${page_id}/${id}.png`
+
+		await fs.mkdir(`public/placeholders/${page_id}`, (err) => {
+			if (err && err.code != "EEXIST") throw err;
+		});
+
+		previewfile.mv(filename, (err) => {
+			if (err) throw err;
+		});
+
+		const newplaceholder = {
+			id : id,
+			page_id : page_id,
+			link : link,
+			comment : comment ? comment : "",
+			preview : filename
+		}
+		await db.query('INSERT INTO placeholder SET ?', newplaceholder);
+		res.send('done');
+	}
+	catch(err) {
+		res.send(err);
+		throw(err);
+	}
+	finally {
+		await db.close();
+	}
 }

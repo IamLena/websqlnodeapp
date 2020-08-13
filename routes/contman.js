@@ -17,6 +17,6 @@ const authed_contman_check = async (req, res, next) => {
 router.get('/create', authed_contman_check, ContmanController.GETCreateMatrix);
 router.post('/create', authed_contman_check, ContmanController.POSTCreateMatrix);
 
-router.get('/addplaceholder', authed_contman_check, ContmanController.GETaddplaceholder);
+router.post('/addplaceholder', authed_contman_check, ContmanController.POSTaddplaceholder);
 
 module.exports = router;

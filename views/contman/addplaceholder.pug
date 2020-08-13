@@ -1,7 +1,10 @@
 extends ../layout
 
 block content
-	form(action='/contman/addplaceholder', method='post')
+	form(action='/contman/addplaceholder', method='post', enctype="multipart/form-data")
+
+		input(type="hidden" name="id" value=`${m_page_id}`)
+
 		div.input-group.form-row.mb-1
 			div.input-group-prepend
 				label.input-group-text(for="inputlink") link
@@ -23,7 +26,7 @@ block content
 			input.input-file(type="file" id="inputpreview", name="preview", accept=".png", onchange="changefile('add preview', this.files[0].name)")
 
 
-		button.btn.btn-block.btn-success(type='submit') upload
+		button.btn.btn-block.btn-success(type='submit') create a placeholder
 
 		if (message)
 			p.text-center.text-warning #{message}

@@ -7,4 +7,6 @@ block content
 	p
 		| by
 		a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
-	a.btn.btn-secondary(href="/contman/addplaceholder") add placeholder
+	form(action="/contman/addplaceholder", method="post")
+		input(type="hidden" name="id" value=`${m_page.id}`)
+		button.btn.btn-secondary(type="sumbit") add placeholder
