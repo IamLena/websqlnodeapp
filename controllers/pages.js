@@ -411,6 +411,67 @@ exports.GETlistoflocals = async (req, res) => {
 	}
 }
 
+exports.POSTmatrix = async (req, res) => {
+	const page_id =  req.query.page_id;
+	if (!page_id)
+	{
+		res.send('will find it!');
+	}
+	else {
+		const db = new Database({
+			host		: process.env.DATABASE_HOST,
+			user		: process.env.DATABASE_USER,
+			password	: process.env.DATABASE_PASSWORD,
+			database	: process.env.DATABASE_NAME
+		});
+
+		try {
+			let lan = req.body.lan;
+			let picked_lan;
+
+			if (lan) {
+				picked_lan = await db.query('select * from lan_geo where lan_geo = ?', lan);
+				picked_lan = picked_lan[0];
+			}
+
+			let lans = await db.query('select * from lan_geo');
+
+			let page = await db.query('select * from pages where id = ?', page_id);
+			let rows = await db.query(`select psd_id, place_id, page_id, link, place_preview as preview, comment, tif_id
+			from tif right join (
+			select id as place_id, page_id, link, preview as place_preview, comment, tif_id from placeholder left join (
+			select place_id, tif_id, lan_geo from local_placeholder where lan_geo = "${lan}"
+			) tmp on placeholder.id = tmp.place_id where page_id = "${page_id}") tmp2
+			on tif.id = tmp2.tif_id`);
+
+			if (page.length > 0)
+			{
+				page = page[0];
+				let author = await db.query('select * from users where id = ?', page.cm_id);
+				if (author.length > 0) {
+					author = author[0];
+					res.render('content/matrix', {
+						type : req.session.user.type,
+						m_page : page,
+						m_author_id : author.id,
+						m_author_fullname : `${author.firstname} ${author.lastname}`,
+						m_rows : rows,
+						m_lan : lans,
+						picked_lan : picked_lan
+					});
+				}
+			}
+		}
+		catch(err) {
+			res.send(err);
+			throw(err);
+		}
+		finally {
+			await db.close();
+		}
+	}
+}
+
 exports.GETmatrix = async (req, res) => {
 	const page_id =  req.query.page_id;
 	if (!page_id)
@@ -428,6 +489,8 @@ exports.GETmatrix = async (req, res) => {
 		try {
 			let page = await db.query('select * from pages where id = ?', page_id);
 			let rows = await db.query('select * from placeholder where page_id = ?', page_id);
+			let lans = await db.query('select * from lan_geo');
+
 			if (page.length > 0)
 			{
 				page = page[0];
@@ -435,10 +498,12 @@ exports.GETmatrix = async (req, res) => {
 				if (author.length > 0) {
 					author = author[0];
 					res.render('content/matrix', {
+						type : req.session.user.type,
 						m_page : page,
 						m_author_id : author.id,
 						m_author_fullname : `${author.firstname} ${author.lastname}`,
-						m_rows : rows
+						m_rows : rows,
+						m_lan : lans
 					});
 				}
 			}
@@ -450,5 +515,45 @@ exports.GETmatrix = async (req, res) => {
 		finally {
 			await db.close();
 		}
+	}
+}
+
+
+exports.GETfindmatrix = async (req, res) => {
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		const contman_id = req.body.contman;
+		let picked_contman;
+
+		let pages = await db.query('select pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id');
+		let m_contman;
+		if (contman_id)
+		{
+			picked_contman = await db.query('select * from users where id = ?', contman_id);
+			picked_contman = picked_contman[0];
+			m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id where users.id != ?', contman_id);
+		}
+		else {
+			m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id');
+		}
+
+		res.render('content/findmatrix', {
+			m_contman : m_contman,
+			rows : pages,
+			picked_contman : picked_contman
+		});
+	}
+	catch(err) {
+		res.send(err);
+		throw(err);
+	}
+	finally {
+		await db.close();
 	}
 }

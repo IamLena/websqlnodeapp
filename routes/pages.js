@@ -15,12 +15,15 @@ router.get('/personalpage', redirectLogin, PagesController.GETpersonalpage);
 
 router.get('/findscreenshot', redirectLogin, PagesController.GETfindscreenshot);
 router.post('/findscreenshot', redirectLogin, PagesController.POSTfindscreenshot);
+router.get('/findmatrix', redirectLogin, PagesController.GETfindmatrix);
+// router.post('/findmatrix', redirectLogin, PagesController.POSTfindmatrix);
 
 router.get('/screenshot', redirectLogin, PagesController.GETscreenshot);
 router.get('/download_psd', redirectLogin, PagesController.GETdownloadpsd);
 router.get('/download_tif', redirectLogin, PagesController.GETdownloadtif);
 
 router.get('/matrix', redirectLogin, PagesController.GETmatrix);
+router.post('/matrix', redirectLogin, PagesController.POSTmatrix);
 
 router.get('/listoflocals', redirectLogin, PagesController.GETlistoflocals);
 router.get('/listofversions', redirectLogin, PagesController.GETlistofversions);
