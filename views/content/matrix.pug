@@ -23,6 +23,6 @@ block content
 						img.smalimg(src=`${row.preview}`)
 					td #{row.comment}
 
-	form(action="/contman/addplaceholder", method="post")
+	form.mb-2(action="/contman/addplaceholder", method="post")
 		input(type="hidden" name="id" value=`${m_page.id}`)
 		button.btn.btn-secondary(type="sumbit") add placeholder
