@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-	form(id="placeholderform" action='/', method='post', enctype="multipart/form-data")
+	form(id="placeholderform" action='/contman/addplaceholder', method='post', enctype="multipart/form-data")
 
 		input(type="hidden" name="id" value=`${m_page_id}`)
 
@@ -24,17 +24,18 @@ block content
 		div.input-group.form-row.mb-1(id="tif_id")
 			div.input-group-prepend
 				label.input-group-text(for="input_tif_id") tif id
-			input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
-			//- if (m_tif_id)
-			//- 	input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id", value=`${m_tif_id}`)
-			//- else
-			//- 	input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
+			if (m_tif_id)
+				input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id", value=`${m_tif_id}`)
+			else
+				input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
 
 		//- Button trigger modal
 		button.btn.btn-secondary(type='button' data-toggle='modal' data-target='#exampleModal' id="chose")
 			| Choose tif from database if don't know the id
+
+		button.btn.btn-block.btn-success(type='submit') create a placeholder
+
 		//- Modal
-		//- data-backdrop="static" data-keyboard="false"
 		#exampleModal.modal.fade.bd-example-modal-lg(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
 			.modal-dialog.modal-lg(role='document')
 				.modal-content
@@ -101,7 +102,7 @@ block content
 					//- 	button.btn.btn-secondary(type='button' data-dismiss='modal') Close
 					//- 	button.btn.btn-primary(type='button') Save changes
 
-		button.btn.btn-block.btn-success(type='submit') create a placeholder
+
 
 		if (message)
 			p.text-center.text-warning #{message}

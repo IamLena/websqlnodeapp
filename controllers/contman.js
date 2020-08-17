@@ -64,15 +64,6 @@ exports.POSTaddplaceholder = async (req, res) => {
 	});
 
 	try {
-		let newplaceholder = {
-			id: 0,
-			page_id : 0,
-			link : 0,
-			comment : 0,
-			os : 0,
-			device : 0,
-			tif_id : 0
-		}
 		const page_id = req.body.id;
 		let link = req.body.link;
 		let comment = req.body.comment;
@@ -80,7 +71,8 @@ exports.POSTaddplaceholder = async (req, res) => {
 		let tif_id = req.body.tif_id;
 
 		if (link && tif_id) {
-			const screens = await db.query('select tif.id, device, os, from tif inner join psd on tif.psd_id = psd.id and tif.id = ?', tif_id);
+			// tif_id = parseInt(tif_id);
+			const screens = await db.query('select tif.id, device, os from tif inner join psd on tif.psd_id = psd.id and tif.id = ?', tif_id);
 			if (screens.length == 0) {
 				// invalid id
 				res.send('invalid id');
@@ -98,12 +90,19 @@ exports.POSTaddplaceholder = async (req, res) => {
 				device : screen.device,
 				tif_id : screen.id
 			}
-			await db.query('indert into placeholder set ?', newplaceholder)
-			res.redirect(`/matrix/?page_id=${page_id}`);
+			await db.query('insert into placeholder set ?', newplaceholder)
+			res.redirect(`/contman/modify/?page_id=${page_id}`);
 		}
 		else {
 			const pages = await db.query('select * from pages where id = ?', page_id);
-			const author_lans = await db.query('select lan_geo from users where id = ?', pages[0].cm_id);
+			if (pages.length == 0) {
+				// invalid id
+				res.send('invalid id');
+				throw 'invalid id';
+			}
+			const page = pages[0];
+
+			const author_lans = await db.query('select lan_geo from users where id = ?', page.cm_id);
 			const lan = author_lans[0].lan_geo;
 			let sqlquery = `select tif.id as tif_id, psd_id, designer_id, tif.preview as tif_preview, version, create_time, os, device from tif inner join psd on tif.psd_id = psd.id and lan_geo = "${lan}"`;
 
@@ -115,14 +114,18 @@ exports.POSTaddplaceholder = async (req, res) => {
 			sqlquery = `select os_name, devices.name as dev_name, tif_id, psd_id, designer_id, tif_preview, version, create_time from devices inner join ( `.concat(sqlquery, ` ) tmp2 on devices.nickname = tmp2.device`);
 			sqlquery = `select os_name, dev_name, tif_id, psd_id, tif_preview, version, create_time, designer_id, concat(users.firstname, " ", users.lastname) as fullname from users inner join ( `.concat(sqlquery, ` ) tmp3 on users.id = tmp3.designer_id`);
 
-
 			const results = await db.query(sqlquery);
 			res.render('contman/addplaceholder', {
 				type : req.session.user.type,
+				m_page_id : page_id,
 				m_os : os_results,
 				m_dev : dev_results,
 				m_designer : designer_results,
-				rows : results
+				rows : results,
+				m_link : link,
+				m_comment : comment,
+				m_tif_id : tif_id,
+				message: "provide data"
 			});
 		}
 	}
@@ -150,7 +153,7 @@ exports.GETModifyMatrix = async (req, res) => {
 	})
 
 	try {
-		const pages = await db.query('select link, name, comment, create_time, cm_id from pages where id = ?', page_id);
+		const pages = await db.query('select id, link, name, comment, create_time, cm_id from pages where id = ?', page_id);
 		if (pages.length == 0) {
 			res.redirect('/findmatrix');
 			await db.close();
@@ -159,18 +162,29 @@ exports.GETModifyMatrix = async (req, res) => {
 		m_page = pages[0];
 		const author_id = m_page.cm_id;
 
-		const users = await db.query('select id,  concat(firstname, lastname) as fullname, lan_geo as lan from users where id = ?', author_id);
-		if (users.length = 0) {
+		const users_res = await db.query(`select id, lan_geo, concat(firstname, " ", lastname) as fullname, lan_geo as lan from users where id = "${author_id}"`);
+		if (users_res.length == 0) {
 			res.send('wrong author id');
 			await db.close();
 			return;
 		}
-		const m_author = users[0];
+		const m_author = users_res[0];
 
-		const rows = await db.query(`select * from placeholder where page_id = ?`, page_id);
+		sqlquery = `select link, comment, placeholder.tif_id, psd_id, preview as preview, content
+		from
+		placeholder inner join (
+		select tif.id as tif_id, psd_id, tif.preview, psd.lan_geo, content
+		from
+		tif inner join psd
+		on tif.psd_id = psd.id ) tmp
+		on tmp.tif_id = placeholder.tif_id
+		where page_id = "${page_id}" and
+		lan_geo = "${m_author.lan_geo}"`;
 
-		res.render('/contman/modify', {
-			m_page : m_page,// link, name, comment, create_time
+		const rows = await db.query(sqlquery);
+
+		res.render('contman/modify', {
+			m_page : m_page,// link, name, comment, create_time, id
 			m_author : m_author, //id, fullname, lan
 			m_rows : rows, //link, preview, comment, tif_id, tif_filename, id
 		})
