@@ -105,18 +105,24 @@ exports.POSTaddplaceholder = async (req, res) => {
 			const pages = await db.query('select * from pages where id = ?', page_id);
 			const author_lans = await db.query('select lan_geo from users where id = ?', pages[0].cm_id);
 			const lan = author_lans[0].lan_geo;
-			let sqlquery = `select os, device, designer_id from tif inner join psd on tif.psd_id = psd.id and lan_geo = "${lan}"`;
+			let sqlquery = `select tif.id as tif_id, psd_id, designer_id, tif.preview as tif_preview, version, create_time, os, device from tif inner join psd on tif.psd_id = psd.id and lan_geo = "${lan}"`;
 
 			let os_results = await db.query(`select distinct os.nickname, os.name from os inner join ( `.concat(sqlquery, ` ) tmp on os.nickname = tmp.os`));
 			let dev_results = await db.query(`select distinct devices.nickname, devices.name from devices inner join ( `.concat(sqlquery, ` ) tmp on devices.nickname = tmp.device`));
 			let designer_results =  await db.query(`select distinct users.id, concat(users.firstname, " ", users.lastname) as fullname from users inner join ( `.concat(sqlquery, ` ) tmp on users.id = tmp.designer_id`));
 
+			sqlquery = `select os.name as os_name, tif_id, psd_id, designer_id, tif_preview, version, create_time, device from os inner join ( `.concat(sqlquery, ` ) tmp1 on os.nickname = tmp1.os`);
+			sqlquery = `select os_name, devices.name as dev_name, tif_id, psd_id, designer_id, tif_preview, version, create_time from devices inner join ( `.concat(sqlquery, ` ) tmp2 on devices.nickname = tmp2.device`);
+			sqlquery = `select os_name, dev_name, tif_id, psd_id, tif_preview, version, create_time, designer_id, concat(users.firstname, " ", users.lastname) as fullname from users inner join ( `.concat(sqlquery, ` ) tmp3 on users.id = tmp3.designer_id`);
+
+
+			const results = await db.query(sqlquery);
 			res.render('contman/addplaceholder', {
 				type : req.session.user.type,
 				m_os : os_results,
 				m_dev : dev_results,
 				m_designer : designer_results,
-				rows : []
+				rows : results
 			});
 		}
 	}

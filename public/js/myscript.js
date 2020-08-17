@@ -11,3 +11,7 @@ const changefile = (id, value) => {
 	else
 		document.getElementById(id).innerHTML = id;
 }
+
+const hello = (tifid) => {
+	document.getElementById("input_tif_id").value = tifid;
+}

@@ -57,3 +57,7 @@
 .modal-content {
 	background-color: #333;
 }
+
+tr.data:hover {
+	background-color :  #ffda75;
+}

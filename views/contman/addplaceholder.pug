@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-	form(action='/contman/addplaceholder', method='post', enctype="multipart/form-data")
+	form(id="placeholderform" action='/', method='post', enctype="multipart/form-data")
 
 		input(type="hidden" name="id" value=`${m_page_id}`)
 
@@ -24,13 +24,14 @@ block content
 		div.input-group.form-row.mb-1(id="tif_id")
 			div.input-group-prepend
 				label.input-group-text(for="input_tif_id") tif id
-			if (m_tif_id)
-				input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id", value=`${m_tif_id}`)
-			else
-				input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
+			input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
+			//- if (m_tif_id)
+			//- 	input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id", value=`${m_tif_id}`)
+			//- else
+			//- 	input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
 
 		//- Button trigger modal
-		button.btn.btn-secondary(type='button' data-toggle='modal' data-target='#exampleModal')
+		button.btn.btn-secondary(type='button' data-toggle='modal' data-target='#exampleModal' id="chose")
 			| Choose tif from database if don't know the id
 		//- Modal
 		//- data-backdrop="static" data-keyboard="false"
@@ -85,13 +86,13 @@ block content
 										th(scope="col") version
 								tbody
 									for row in rows
-										tr
+										tr.data(onclick=`hello(${row.tif_id})` data-dismiss='modal' aria-label='Close')
 											td #{row.os_name}
 											td #{row.dev_name}
 											td
-												a(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
+												a(href=`/personalpage/?id=${row.designer_id}`) #{row.fullname}
 											td
-												img.smalimg(src=`${row.preview}`)
+												img.smalimg(src=`${row.tif_preview}`)
 											td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
 											td
 												a(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}
