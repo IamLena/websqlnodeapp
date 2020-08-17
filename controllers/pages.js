@@ -531,7 +531,7 @@ exports.GETfindmatrix = async (req, res) => {
 		const contman_id = req.body.contman;
 		let picked_contman;
 
-		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id');
+		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version = 1');
 		let m_contman;
 		if (contman_id)
 		{
@@ -544,6 +544,7 @@ exports.GETfindmatrix = async (req, res) => {
 		}
 
 		res.render('content/findmatrix', {
+			type : req.session.user.type,
 			m_contman : m_contman,
 			rows : pages,
 			picked_contman : picked_contman

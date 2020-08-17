@@ -61,3 +61,12 @@
 tr.data:hover {
 	background-color :  #ffda75;
 }
+
+table {
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
+td, th {
+	width: 20%
+}

@@ -17,9 +17,11 @@ const authed_contman_check = async (req, res, next) => {
 router.get('/create', authed_contman_check, ContmanController.GETCreateMatrix);
 router.post('/create', authed_contman_check, ContmanController.POSTCreateMatrix);
 
-router.get('/modify', authed_contman_check, ContmanController.GETModifyMatrix);
+router.get('/create2', authed_contman_check, ContmanController.GETcreateholders);
+router.post('/addplaceholder', authed_contman_check, ContmanController.POSTaddplaceholder);
+router.post('/publish', authed_contman_check, ContmanController.POSTpublish);
+
 // router.post('/modify', authed_contman_check, ContmanController.POSTCreateMatrix);
 
-router.post('/addplaceholder', authed_contman_check, ContmanController.POSTaddplaceholder);
 
 module.exports = router;

@@ -91,7 +91,7 @@ exports.POSTaddplaceholder = async (req, res) => {
 				tif_id : screen.id
 			}
 			await db.query('insert into placeholder set ?', newplaceholder)
-			res.redirect(`/contman/modify/?page_id=${page_id}`);
+			res.redirect(`/contman/create2/?page_id=${page_id}`);
 		}
 		else {
 			const pages = await db.query('select * from pages where id = ?', page_id);
@@ -138,7 +138,7 @@ exports.POSTaddplaceholder = async (req, res) => {
 	}
 }
 
-exports.GETModifyMatrix = async (req, res) => {
+exports.GETcreateholders = async (req, res) => {
 	const page_id = req.query.page_id;
 	if (!page_id){
 		res.redirect('/findmatrix');
@@ -183,7 +183,7 @@ exports.GETModifyMatrix = async (req, res) => {
 
 		const rows = await db.query(sqlquery);
 
-		res.render('contman/modify', {
+		res.render('contman/create2', {
 			m_page : m_page,// link, name, comment, create_time, id
 			m_author : m_author, //id, fullname, lan
 			m_rows : rows, //link, preview, comment, tif_id, tif_filename, id
@@ -194,6 +194,55 @@ exports.GETModifyMatrix = async (req, res) => {
 		res.send(err);
 	}
 	finally {
+		await db.close();
+	}
+}
+
+exports.POSTpublish = async (req, res) => {
+	const page_id = req.body.id;
+	const db = new Database({
+		host		: process.env.DATABASE_HOST,
+		user		: process.env.DATABASE_USER,
+		password	: process.env.DATABASE_PASSWORD,
+		database	: process.env.DATABASE_NAME
+	});
+
+	try {
+		const pages = await db.query('select * from pages where id = ?', page_id);
+		if (pages.length == 0)
+		{
+			res.send('err');
+			throw err;
+		}
+		const page = pages[0];
+
+		const ids = await db.query('select uuid() as id');
+		const id = ids[0].id;
+
+		const times = await db.query('select now() as now');
+		const time = times[0].now;
+
+		const version = page.version + 1
+
+		const newpage = {
+			id : id,
+			name : page.name,
+			comment : page.comment,
+			cm_id : page.cm_id,
+			parent_id : page.id,
+			link : page.link,
+			version : version,
+			create_time : time
+		}
+
+		await db.query('insert into pages set ?', newpage);
+		res.send('done');
+	}
+	catch(err) {
+		res.send('err');
+		throw err;
+	}
+	finally{
 		await db.close();
 	}
 }

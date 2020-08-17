@@ -35,4 +35,7 @@ block content
 
 						td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
 						td
+							//- if (`${type}` == 2)
+							//- 	a(href=`/contman/modify/?page_id=${row.id}`) v#{row.version}
+							//- else
 							a(href=`/matrix/?page_id=${row.id}`) v#{row.version}
