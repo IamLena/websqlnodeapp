@@ -10,7 +10,14 @@ const redirectLogin = (req, res, next) => {
 		next();
 }
 
-router.get('/', PagesController.GEThomepage)
+const redirectPersonalPage = (req, res, next) => {
+	if (req.session.user)
+		res.redirect('/personalpage');
+	else
+		next();
+}
+
+router.get('/', redirectPersonalPage, PagesController.GEThomepage)
 router.get('/personalpage', redirectLogin, PagesController.GETpersonalpage);
 
 router.get('/findscreenshot', redirectLogin, PagesController.GETfindscreenshot);

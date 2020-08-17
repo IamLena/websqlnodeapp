@@ -53,3 +53,7 @@
 .smalimg {
 	width: 100px;
 }
+
+.modal-content {
+	background-color: #333;
+}

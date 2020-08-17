@@ -6,7 +6,7 @@ block content
 	p #{m_page.create_time.toLocaleString()}
 	p
 		| by
-		a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
+		a(href=`/personalpage/?id=${m_author.id}`)  #{m_author.fullname}
 
 	table.table.table-sm.table-dark
 		thead
@@ -16,28 +16,25 @@ block content
 					th(scope="col") preview
 					th(scope="col") comment
 
-					th(scope="col")
-							select.dropdown.custom-select(name="lan" id="landrop" onchange="this.form.submit()")
-								if (picked_lan)
-									option(value=picked_lan.lan_geo) #{picked_lan.language} (#{picked_lan.country})
-								else
-									option(value="") language (country)
-								each item in m_lan
-									option(value=item.lan_geo) #{item.language} (#{item.country})
+					th(scope="col") tif link #{m_author.lan}
+					th(scope="col") tif preview
 		tbody
 			for row in m_rows
 				tr
 					td
 						a(href=`${row.link}`) #{row.link}
 					td
-						img.smalimg(src=`${row.link}`)
+						img.smalimg(src=`${row.preview}`)
 					td #{row.comment}
 					td
-						if (row.tif)
-							a(href=`/screenhost/?psd_id=${row.psd_id}`) #{row.tif_id}
-						else
-							| use en-US
+						a(href=`/screenshot/?psd_id=${row.tif_id}`) link
+					td
+						img.smalimg(src=`${row.tif_filename}`)
 
 	form.mb-2(action="/contman/addplaceholder", method="post")
 		input(type="hidden" name="id" value=`${m_page.id}`)
 		button.btn.btn-secondary(type="sumbit") add placeholder
+
+	form.mb-2(action="/contman/publish", method="post")
+		input(type="hidden" name="id" value=`${m_page.id}`)
+		button.btn.btn-secondary(type="sumbit") publish

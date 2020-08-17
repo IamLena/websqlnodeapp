@@ -21,10 +21,84 @@ block content
 			else
 				input.form-control(id="inputcomment", placeholder="enter comment", name="comment")
 
-		div.input-group.form-row.mb-1
-			label.btn.btn-file(for="inputpreview" id="add preview") add preview
-			input.input-file(type="file" id="inputpreview", name="preview", accept=".png", onchange="changefile('add preview', this.files[0].name)")
+		div.input-group.form-row.mb-1(id="tif_id")
+			div.input-group-prepend
+				label.input-group-text(for="input_tif_id") tif id
+			if (m_tif_id)
+				input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id", value=`${m_tif_id}`)
+			else
+				input.form-control(id="input_tif_id", placeholder="enter tif id", name="tif_id")
 
+		//- Button trigger modal
+		button.btn.btn-secondary(type='button' data-toggle='modal' data-target='#exampleModal')
+			| Choose tif from database if don't know the id
+		//- Modal
+		//- data-backdrop="static" data-keyboard="false"
+		#exampleModal.modal.fade.bd-example-modal-lg(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+			.modal-dialog.modal-lg(role='document')
+				.modal-content
+					.modal-header
+						h5#exampleModalLabel.modal-title Choose tif
+						button.close(type='button' data-dismiss='modal' aria-label='Close')
+							span(aria-hidden='true') &times;
+					.modal-body
+						| here is the form
+						form(action="#", method="post")
+							table.table.table-sm.table-dark
+								thead
+									tr
+										th(scope="col")
+											select.dropdown.custom-select(name="os" id="osdrop" onchange="this.form.submit()")
+												if (picked_os)
+													option(value=picked_os.nickname) #{picked_os.name}
+												else
+													option(value="") os
+												each item in m_os
+													option(value=item.nickname) #{item.name}
+												if (picked_os)
+													option(value="") reset
+
+										th(scope="col")
+											select.dropdown.custom-select(name="dev" id="devdrop" onchange="this.form.submit()")
+												if (picked_dev)
+													option(value=picked_dev.nickname) #{picked_dev.name}
+												else
+													option(value="") device
+												each item in m_dev
+													option(value=item.nickname) #{item.name}
+												if (picked_dev)
+													option(value="") reset
+
+										th(scope="col")
+											select.dropdown.custom-select(name="designer" id="designerdrop" onchange="this.form.submit()")
+												if (picked_designer)
+													option(value=picked_designer.id) #{picked_designer.firstname} #{picked_designer.lastname}
+												else
+													option(value="") designer
+												each item in m_designer
+													option(value=item.id) #{item.fullname}
+												if (picked_designer)
+													option(value="") reset
+
+										th(scope="col") preview
+										th(scope="col") create_time
+										th(scope="col") version
+								tbody
+									for row in rows
+										tr
+											td #{row.os_name}
+											td #{row.dev_name}
+											td
+												a(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
+											td
+												img.smalimg(src=`${row.preview}`)
+											td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
+											td
+												a(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}
+
+					//- .modal-footer
+					//- 	button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+					//- 	button.btn.btn-primary(type='button') Save changes
 
 		button.btn.btn-block.btn-success(type='submit') create a placeholder
 

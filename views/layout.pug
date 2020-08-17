@@ -4,11 +4,21 @@ head
   meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
   title WebApp &middot; Luchina
 
+
+  //- script(src="/js/bootstrap.js")
+  //- script(src="/js/bootstrap.min.js")
+  //- script(src="/js/bootstrap.bundle.min.js")
+
+  script(src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous")
+  script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous")
   script(src="/js/myscript.js")
 
-  link(href='/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous')
-  link(rel='icon' href='/images/coala.png' sizes='32x32' type='image/png')
+  //- link(href='/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous')
+  //- link(rel='icon' href='/images/coala.png' sizes='32x32' type='image/png')
   meta(name='theme-color' content='#563d7c')
+
+  link(rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous')
   link(href='/css/cover.css' rel='stylesheet')
   link(href='/css/mystuff.css' rel='stylesheet')
 body
@@ -35,7 +45,7 @@ body
                 | Action
               div.dropdown-menu(aria-labelledby="navbarDropdown" id="cmdrop")
                 a.dropdown-item(href='/contman/create') create matrix
-                a.dropdown-item(href='#') modify/publish matrix
+                a.dropdown-item(href='/findmatrix') modify/publish matrix
                 div.dropdown-divider
                 a.dropdown-item(href='/auth/logout') log out
           else if (`${type}` == 3)
@@ -43,7 +53,7 @@ body
               a.nav-link.dropdown-toggle(id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false", onclick="showdropdown('gadrop')")
                 | Action
               div.dropdown-menu(aria-labelledby="navbarDropdown" id="gadrop")
-                a.dropdown-item(href='#') find page
+                a.dropdown-item(href='/findmatrix') find page
                 a.dropdown-item(href='/findscreenshot') find .tif
                 div.dropdown-divider
                 a.dropdown-item(href='/auth/logout') log out
