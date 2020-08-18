@@ -56,7 +56,8 @@ block content
 					th(scope="col") version
 			tbody
 				for row in rows
-					tr
+					//- tr.data(onclick=`redirect('${row.psd_id}')`)
+					tr.data
 						td #{row.os_name}
 						td #{row.dev_name}
 						td #{row.language} (#{row.country})

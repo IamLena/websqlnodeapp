@@ -20,20 +20,21 @@ const redirectPersonalPage = (req, res, next) => {
 router.get('/', redirectPersonalPage, PagesController.GEThomepage)
 router.get('/personalpage', redirectLogin, PagesController.GETpersonalpage);
 
-// router.get('/findscreenshot', redirectLogin, PagesController.GETfindscreenshot);
-// router.post('/findscreenshot', redirectLogin, PagesController.POSTfindscreenshot);
+router.get('/findscreenshot', redirectLogin, PagesController.GETfindscreenshot);
+router.post('/findscreenshot', redirectLogin, PagesController.POSTfindscreenshot);
 
-// router.get('/findpage', redirectLogin, PagesController.GETfindpage);
-// router.post('/findpage', redirectLogin, PagesController.POSTfindpage);
+router.get('/findpage', redirectLogin, PagesController.GETfindpage);
+router.post('/findpage', redirectLogin, PagesController.POSTfindpage);
 
-// router.get('/screenshot', redirectLogin, PagesController.GETscreenshot);
-// router.get('/page', redirectLogin, PagesController.GETpage);
+router.get('/screenshot', redirectLogin, PagesController.GETscreenshot);
+router.get('/download_psd', redirectLogin, PagesController.GETdownloadpsd);
+router.get('/download_tif', redirectLogin, PagesController.GETdownloadtif);
+router.get('/listofscreenlocals', redirectLogin, PagesController.GETlistofscreenlocals);
+router.get('/listofscreenversions', redirectLogin, PagesController.GETlistofscreenversions);
 
-// router.get('/download_psd', redirectLogin, PagesController.GETdownloadpsd);
-// router.get('/download_tif', redirectLogin, PagesController.GETdownloadtif);
+router.get('/matrix', redirectLogin, PagesController.GETpage);
+router.post('/matrix', redirectLogin, PagesController.POSTpage);
 
-// router.get('/listofscreenlocals', redirectLogin, PagesController.GETlistoflocals);
-// router.get('/listofscreenversions', redirectLogin, PagesController.GETlistofversions);
 // router.get('/listofpageversions', redirectLogin, PagesController.GETlistofversions);
 
 module.exports = router;
