@@ -494,14 +494,14 @@ exports.GETmatrix = async (req, res) => {
 			if (page.length > 0)
 			{
 				page = page[0];
-				let author = await db.query('select * from users where id = ?', page.cm_id);
+				let author = await db.query('select id, lan_geo, concat(firstname, " ", lastname) as fullname, lan_geo as lan from users where id = ?', page.cm_id);
 				if (author.length > 0) {
 					author = author[0];
 					res.render('content/matrix', {
 						type : req.session.user.type,
 						m_page : page,
-						m_author_id : author.id,
-						m_author_fullname : `${author.firstname} ${author.lastname}`,
+						m_author : author,
+						m_user : req.session.user,
 						m_rows : rows,
 						m_lan : lans
 					});

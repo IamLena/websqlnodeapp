@@ -91,7 +91,7 @@ exports.POSTaddplaceholder = async (req, res) => {
 				tif_id : screen.id
 			}
 			await db.query('insert into placeholder set ?', newplaceholder)
-			res.redirect(`/contman/create2/?page_id=${page_id}`);
+			res.redirect(`/contman/modify/?page_id=${page_id}`);
 		}
 		else {
 			const pages = await db.query('select * from pages where id = ?', page_id);
@@ -183,10 +183,15 @@ exports.GETcreateholders = async (req, res) => {
 
 		const rows = await db.query(sqlquery);
 
-		res.render('contman/create2', {
+		const lans = await db.query('select * from lan_geo');
+
+		res.render('contman/modify', {
+			m_user : req.session.user,
+			type : req.session.user.type,
 			m_page : m_page,// link, name, comment, create_time, id
 			m_author : m_author, //id, fullname, lan
 			m_rows : rows, //link, preview, comment, tif_id, tif_filename, id
+			m_lan : lans
 		})
 	}
 	catch(err) {
