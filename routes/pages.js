@@ -34,7 +34,6 @@ router.get('/listofscreenversions', redirectLogin, PagesController.GETlistofscre
 
 router.get('/matrix', redirectLogin, PagesController.GETpage);
 router.post('/matrix', redirectLogin, PagesController.POSTpage);
-
-// router.get('/listofpageversions', redirectLogin, PagesController.GETlistofversions);
+router.get('/listofpageversions', redirectLogin, PagesController.GETlistofversions);
 
 module.exports = router;

@@ -518,3 +518,25 @@ exports.POSTpage = async (req, res) => {
 		}
 	}
 }
+
+exports.GETlistofversions = async (req, res) => {
+	const db = new Database();
+	try{
+		const page_id = req.query.page_id;
+		let m_page = await db.query('select name from pages where id = ?', page_id);
+		if (m_page.length == 0) throw("invalid id");
+		m_page = m_page[0];
+		let pages = await db.query(`select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0 and name="${m_page.name}"`);
+		res.render('content/findmatrix', {
+			type : req.session.user.type,
+			m_contman : [],
+			rows : pages,
+		});
+	}
+	catch(err){
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+}

@@ -5,6 +5,8 @@ block content
 	p #{m_page.create_time.toLocaleString()}
 		|  by
 		a(href=`/personalpage/?id=${m_author.id}`)  #{m_author.fullname}
+		br
+		a(href=`/listofpageversions/?page_id=${m_page.id}`) list of versions
 
 	table.table.table-sm.table-dark
 		thead
