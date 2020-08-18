@@ -23,12 +23,7 @@ exports.POSTCreateMatrix = async (req, res) => {
 		return;
 	}
 	if (!comment) comment = "";
-	const db = new Database({
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	});
+	const db = new Database();
 
 	try {
 		let id = await db.query('select uuid() as id');
@@ -56,12 +51,7 @@ exports.POSTCreateMatrix = async (req, res) => {
 }
 
 exports.POSTaddplaceholder = async (req, res) => {
-	const db = new Database({
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	});
+	const db = new Database();
 
 	try {
 		const page_id = req.body.id;
@@ -71,17 +61,13 @@ exports.POSTaddplaceholder = async (req, res) => {
 		let tif_id = req.body.tif_id;
 
 		if (link && tif_id) {
-			// tif_id = parseInt(tif_id);
 			const screens = await db.query('select tif.id, device, os from tif inner join psd on tif.psd_id = psd.id and tif.id = ?', tif_id);
-			if (screens.length == 0) {
-				// invalid id
-				res.send('invalid id');
+			if (screens.length == 0)
 				throw 'invalid id';
-			}
 			const screen = screens[0];
 
 			const ids = await db.query('select uuid() as id');
-			let newplaceholder = {
+			await db.query('insert into placeholder set ?', {
 				id: ids[0].id,
 				page_id : page_id,
 				link : link,
@@ -89,17 +75,13 @@ exports.POSTaddplaceholder = async (req, res) => {
 				os : screen.os,
 				device : screen.device,
 				tif_id : screen.id
-			}
-			await db.query('insert into placeholder set ?', newplaceholder)
+			});
 			res.redirect(`/contman/modify/?page_id=${page_id}`);
 		}
 		else {
 			const pages = await db.query('select * from pages where id = ?', page_id);
-			if (pages.length == 0) {
-				// invalid id
-				res.send('invalid id');
+			if (pages.length == 0)
 				throw 'invalid id';
-			}
 			const page = pages[0];
 
 			const author_lans = await db.query('select lan_geo from users where id = ?', page.cm_id);
@@ -130,7 +112,6 @@ exports.POSTaddplaceholder = async (req, res) => {
 		}
 	}
 	catch(err) {
-		throw err;
 		res.send(err);
 	}
 	finally {
@@ -138,26 +119,19 @@ exports.POSTaddplaceholder = async (req, res) => {
 	}
 }
 
-exports.GETcreateholders = async (req, res) => {
+exports.GETmodifypage = async (req, res) => {
 	const page_id = req.query.page_id;
 	if (!page_id){
 		res.redirect('/findmatrix');
 		return;
 	}
 
-	const db = new Database({
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	})
+	const db = new Database();
 
 	try {
 		const pages = await db.query('select id, link, name, comment, create_time, cm_id from pages where id = ?', page_id);
 		if (pages.length == 0) {
-			res.redirect('/findmatrix');
-			await db.close();
-			return;
+			throw "invalid page_id";
 		}
 		m_page = pages[0];
 		const author_id = m_page.cm_id;
@@ -205,12 +179,7 @@ exports.GETcreateholders = async (req, res) => {
 
 exports.POSTpublish = async (req, res) => {
 	const page_id = req.body.id;
-	const db = new Database({
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	});
+	const db = new Database();
 
 	try {
 		const pages = await db.query('select * from pages where id = ?', page_id);
@@ -250,4 +219,28 @@ exports.POSTpublish = async (req, res) => {
 	finally{
 		await db.close();
 	}
+}
+
+exports.GETfindtomodify = async (req, res) => {
+	const db = new Database();
+	try {
+		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0');
+		let pavesv0 = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version = 0 and cm_id = ?', req.session.user.id);
+		pages = pages.concat(pavesv0);
+		res.render('content/findmatrix', {
+			type : req.session.user.type,
+			m_contman : [],
+			rows : pages,
+		});
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
+}
+
+exports.POSTfindtomodify = async (req, res) => {
+
 }

@@ -1,0 +1,38 @@
+extends ../layout
+
+block content
+	h1 filtering
+
+	form(action="/contman/findtomodify", method="post")
+		table.table.table-sm.table-dark
+			thead
+				tr
+					th(score="col") link
+					th(scope="col") name
+					th(scope="col") comment
+
+					th(scope="col")
+						select.dropdown.custom-select(name="contman" id="contmandrop" onchange="this.form.submit()")
+							if (picked_contman)
+								option(value=picked_contman.id) #{picked_contman.firstname} #{picked_contman.lastname}
+							else
+								option(value="") author
+							each item in m_contman
+								option(value=item.id) #{item.firstname} #{item.lastname}
+							if (picked_contman)
+								option(value="") reset
+
+					th(scope="col") create_time
+					th(scope="col") version
+			tbody
+				for row in rows
+					tr
+						td #{row.link}
+						td #{row.name}
+						td #{row.comment}
+						td
+							a(href=`/personalpage/?id=${row.cm_id}`) #{row.firstname} #{row.lastname}
+
+						td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
+						td
+							a(href=`/concat/modify/?page_id=${row.id}`) v#{row.version}
