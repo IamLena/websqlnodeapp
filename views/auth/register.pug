@@ -16,7 +16,7 @@ block content
 
 			div.input-group.regelem
 				select.custom-select(name="lan_geo" id="lan_geo")
-					option(selected='') Choose the language...
+					option(value="") Choose the language...
 					each lan in lans
 						option(value=lan.lan_geo) #{lan.language} (#{lan.country})
 

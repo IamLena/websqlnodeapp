@@ -17,9 +17,9 @@ const redirectLogin = (req, res, next) => {
 }
 
 router.get('/login', redirectPersonalPage, AuthController.GETlogin);
-router.get('/register', redirectPersonalPage, AuthController.GETregister);
-
 router.post('/login', redirectPersonalPage, AuthController.POSTlogin);
+
+router.get('/register', redirectPersonalPage, AuthController.GETregister);
 router.post('/register', redirectPersonalPage, AuthController.POSTregister);
 
 router.get('/logout', redirectLogin, AuthController.POSTlogout);

@@ -425,7 +425,7 @@ exports.POSTModifyRecord = async (req, res) => {
 			res.redirect(`/screenshot/?psd_id=${new_psd_id}`);
 		}
 		catch(err) {
-			res.send(err);
+			if (err != "finish") res.send(err);
 		}
 		finally {
 			await db.close();
