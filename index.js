@@ -35,16 +35,16 @@ app.use(session({
 
 app.use(async (req, res, next) => {
 	if (req.session.user_id) {
-		const db = new Database( {
-			host		: process.env.DATABASE_HOST,
-			user		: process.env.DATABASE_USER,
-			password	: process.env.DATABASE_PASSWORD,
-			database	: process.env.DATABASE_NAME
-		} );
-
+		const db = new Database();
 		try {
-			const rows = await db.query(`select * from users where id = "${req.session.used_id}"`);
-			req.session.user = rows[0];
+			const users = await db.query(`select id, login, type, lan_geo, email,
+			concat(firstname, " ", lastname) as fullname,
+			concat(left(firstname, 1), left(lastname, 1)) as initials
+			from users where id = ?`, req.session.user_id);
+			if (users.length != 0)
+				req.session.user = users[0];
+			else
+				throw "wrong user id in the session"
 		} catch ( err ) {
 			res.send(err);
 		} finally {

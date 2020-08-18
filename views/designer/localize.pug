@@ -17,7 +17,7 @@ block content
 					if (m_pickedlan)
 						option(value=`${m_pickedlan.lan_geo}`) #{m_pickedlan.language} (#{m_pickedlan.country})
 					else
-					option(value="undefined") choose language...
+					option(value="") choose language...
 					each lan in m_lans
 						option(value=lan.lan_geo) #{lan.language} (#{lan.country})
 

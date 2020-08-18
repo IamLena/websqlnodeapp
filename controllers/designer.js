@@ -2,21 +2,22 @@ const mysql = require('mysql');
 const fs = require("fs");
 const Database = require('../db');
 const PSD = require('psd');
+const psd = require('psd');
 
-const uploadfiles = (grabfile, psdfile, tiffile, previewfile, filename) => {
-	grabfile.mv(`uploads/${filename}_grab.png`, (err) => {
+const uploadfiles = async (grabfile, psdfile, tiffile, previewfile, os, device, filename) => {
+	await grabfile.mv(`uploads/${os}/${device}/${filename}/${filename}_grab.png`, (err) => {
 		if (err) throw err;
 	});
 
-	psdfile.mv(`uploads/${filename}.psd`, (err) => {
+	await psdfile.mv(`uploads/${os}/${device}/${filename}/${filename}.psd`, (err) => {
 		if (err) throw err;
 	});
 
-	tiffile.mv(`uploads/${filename}.tif`, (err) => {
+	await tiffile.mv(`uploads/${os}/${device}/${filename}/${filename}.tif`, (err) => {
 		if (err) throw err;
 	});
 
-	previewfile.mv(`public/previews/${filename}.png`, (err) => {
+	await previewfile.mv(`public/previews/${os}/${device}/${filename}.png`, (err) => {
 		if (err) throw err;
 	});
 
@@ -25,70 +26,82 @@ const uploadfiles = (grabfile, psdfile, tiffile, previewfile, filename) => {
 	// });
 }
 
-const createfolders = async (os, device) => {
-	await fs.mkdir(`uploads/${os}`, (err) =>{
+const createfolders = (os, device, filename) => {
+	fs.mkdir(`uploads/${os}`, (err) =>{
 		if (err && err.code != "EEXIST") throw err;
 	});
 
-	await fs.mkdir(`uploads/${os}/${device}`, (err) => {
+	fs.mkdir(`uploads/${os}/${device}`, (err) => {
 		if (err && err.code != "EEXIST") throw err;
 	});
 
-	await fs.mkdir(`public/previews/${os}`, (err) =>{
+	fs.mkdir(`uploads/${os}/${device}/${filename}`, (err) => {
 		if (err && err.code != "EEXIST") throw err;
 	});
 
-	await fs.mkdir(`public/previews/${os}/${device}`, (err) => {
+	fs.mkdir(`public/previews/${os}`, (err) =>{
+		if (err && err.code != "EEXIST") throw err;
+	});
+
+	fs.mkdir(`public/previews/${os}/${device}`, (err) => {
 		if (err && err.code != "EEXIST") throw err;
 	});
 }
 
-
 const creatererender = async (req, res, code, content, height, width, ppi, lan_geo, os, device, msg) => {
-	const db = new Database( {
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	} );
-
+	const db = new Database();
 	try {
-		const os_results = await db.query('select * from os');
-		let device_results = [];
-		const lan_geo_results = await db.query('select * from lan_geo');
-		let pickedlan;
-		let pickedos;
-		if (lan_geo)
-		{
+		let lan_results, pickedlan;
+		lan_results = await db.query('select * from lan_geo');
+		if (lan_geo) {
 			pickedlan = await db.query('select * from lan_geo where lan_geo = ?', lan_geo);
+			if (pickedlan.length == 0) throw "pickedlans is empty"
 			pickedlan = pickedlan[0];
 		}
+
+		let os_results, pickedos, dev_results, pickeddev;
+
 		if (os)
 		{
 			pickedos = await db.query('select * from os where nickname = ?', os);
+			if (pickedos.length == 0) throw "pickedoss is empty";
 			pickedos = pickedos[0];
-			if (device != "undefined")
-			{
-				device_results = await db.query('select * from devices where nickname = ?', device);
-			}
-			else
-			{
-				device_results = await db.query(`select devices.nickname as nickname, devices.name as name
+
+			dev_results = await db.query(`select devices.nickname as nickname, devices.name as name
 				from
 				devices inner join
 				(select *
 				from os_dev_comp
 				where os_nick = "${os}") tmp
 				on devices.nickname = tmp.dev_nick`);
-
-			}
 		}
+		else
+			dev_results = await db.query('select * from devices');
+
+		if (device)
+		{
+			pickeddev = await db.query('select * from devices where nickname = ?', device);
+			if (pickeddev.length == 0) throw "pickeddev is empty";
+			pickeddev - pickeddev[0];
+
+			os_results = await db.query(`select os.nickname as nickname, os.name as name
+			from
+			os inner join
+			(select *
+			from os_dev_comp
+			where dev_nick = "${device}") tmp
+			on os.nickname = tmp.os_nick`);
+		}
+		else
+			os_results = await db.query('select * from os');
+
 		res.render('designer/create', {
 			type: req.session.user.type,
 			m_oss : os_results,
 			m_pickedos : pickedos,
-			m_devices : device_results,
-			m_lans : lan_geo_results,
+			m_devices : dev_results,
+			m_pickeddev : pickeddev,
+			m_lans : lan_results,
 			m_pickedlan : pickedlan,
 			m_code : code,
 			m_content : content,
@@ -96,7 +109,7 @@ const creatererender = async (req, res, code, content, height, width, ppi, lan_g
 			m_width : width,
 			m_ppi : ppi,
 			message : msg
-		})
+		});
 	}
 	catch(err) {
 		res.send(err);
@@ -114,110 +127,108 @@ exports.POSTCreateRecord = async (req, res) => {
 	let psd_id;
 	let {code, content, height, width, ppi, lan_geo, os, device} = req.body;
 
-	if (!code || !content || !height || !width || !ppi || os=="undefined" || device=="undefined") {
+	if (!code || !content || !height || !width || !ppi || !os || !device) {
 		await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "provide data");
 	}
 	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || !req.files.preview) {
 		await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "add files");
 	}
 	else {
-		const db = new Database( {
-			host		: process.env.DATABASE_HOST,
-			user		: process.env.DATABASE_USER,
-			password	: process.env.DATABASE_PASSWORD,
-			database	: process.env.DATABASE_NAME
-		} );
-
-		const sizes = await db.query(`select height, width, ppi from devices where nickname = "${device}"`);
-		if ((height % sizes[0].height) != (width % sizes[0].width) && (height % sizes[0].width) != (width % sizes[0].height))
-		{
-			await db.close();
-			await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "wrong sizes");
-		}
-		const version = 1
-		let datetime = await db.query('select now() as now');
-		datetime = datetime[0].now;
-		const cpcontent = content;
-		content = content.replace(/ /g, "-");
-		const initals = req.session.user.initials;
-
-		//generating file paths
-		let filename = `${os}/${device}/${code}_${content}_${lan_geo}_${initals}_${version}`;
-		await createfolders(os, device);
-		const grabfile = req.files.grab;
-		const psdfile = req.files.psd;
-		const tiffile = req.files.tif;
-		const previewfile = req.files.preview;
-		uploadfiles(grabfile, psdfile, tiffile, previewfile, filename);
-
-
-
-		if (!lan_geo) lan_geo = req.session.user.lan_geo;
-
+		const db = new Database();
 		try {
+			const sizes = await db.query(`select height, width, ppi from devices where nickname = ?`, device);
+			if ((height % sizes[0].height) != (width % sizes[0].width) && (height % sizes[0].width) != (width % sizes[0].height)) {
+				await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "wrong sizes");
+				throw "finish";
+			}
+
+			let datetime = await db.query('select now() as now');
+			datetime = datetime[0].now;
+			let psd_id = await db.query('select uuid() as id')
+			psd_id = psd_id[0].id;
+			let tif_id = await db.query('select uuid() as id')
+			tif_id = tif_id[0].id;
+			const version = 1;
+			const scale = 1;
+			const dashed_content = content.replace(/ /g, "-");
+			const initals = req.session.user.initals;
+			if (!lan_geo) lan_geo = req.session.user.lan_geo;
+
+			let filename = `${code}_${dashed_content}_${lan_geo}_${initals}_${version}`;
+
+			const psds = await db.query('select filename from psd where filename = ?', `uploads/${os}/${device}/${filename}/${filename}.psd`);
+			if (psds.length != 0) {
+				await creatererender(req, res, code, content, height, width, ppi, lan_geo, os, device, "already exists in database");
+				throw "finish";
+			}
+
+			createfolders(os, device, filename);
+			const grabfile = req.files.grab;
+			const psdfile = req.files.psd;
+			const tiffile = req.files.tif;
+			const previewfile = req.files.preview;
+			await uploadfiles(grabfile, psdfile, tiffile, previewfile, os, device, filename);
+
 			await db.query('INSERT INTO psd SET ?', {
+				id : psd_id,
 				code : code,
 				designer_id : req.session.user.id,
 				lan_geo : lan_geo,
-				version : 1,
+				version : version,
 				create_time : datetime,
 				width : width,
 				height : height,
-				scale : 1,
+				scale : scale,
 				ppi : ppi,
-				grab : `uploads/${filename}_grab.png`,
-				preview : `/previews/${filename}.png`,
-				filename : `uploads/${filename}.psd`,
+				grab : `uploads/${os}/${device}/${filename}/${filename}_grab.png`,
+				filename : `uploads/${os}/${device}/${filename}/${filename}.psd`,
+				preview : `/previews/${os}/${device}/${filename}.png`,
 				os : os,
 				device : device,
-				content : cpcontent,
+				content : content,
 			});
 
-			const maxidres = await db.query("SELECT MAX(id) as psd_id FROM psd");
-			psd_id = maxidres[0].psd_id
 			await db.query('INSERT INTO tif SET ?', {
+				id : tif_id,
 				psd_id : psd_id,
 				width : width,
 				height : height,
-				scale : 1,
+				scale : scale,
 				ppi : ppi,
 				filename : `uploads/${filename}.tif`,
 				preview : `/previews/${filename}.png`,
 			});
+
+			res.redirect(`/screenshot/?psd_id=${psd_id}`);
 		}
 		catch(err) {
-			res.send(err);
+			if (err != "finish")
+				res.send(err);
 		}
 		finally {
 			await db.close();
 		}
-	res.redirect(`/screenshot/?psd_id=${psd_id}`);
 	}
 }
 
 const localizererender = async (req, res, psd_id, lan_geo, msg) => {
-	const db = new Database( {
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	} );
-
+	const db = new Database();
 	try {
-		const lan_geo_results = await db.query('select * from lan_geo');
-		let pickedlan;
-		if (lan_geo)
-		{
-			pickedlan = await db.query("select * from lan_geo where lan_geo = ?", lan_geo);
+		let lan_results, pickedlan;
+		lan_results = await db.query('select * from lan_geo');
+		if (lan_geo) {
+			pickedlan = await db.query('select * from lan_geo where lan_geo = ?', lan_geo);
+			if (pickedlan.length == 0) throw "pickedlans is empty"
 			pickedlan = pickedlan[0];
 		}
+
 		res.render('designer/localize', {
 			type : req.session.user.type,
-			m_lans : lan_geo_results,
+			m_lans : lan_results,
 			m_pickedlan : pickedlan,
 			m_id : psd_id,
 			message : msg
-		})
+		});
 	}
 	catch(err) {
 		res.send(err);
@@ -231,112 +242,82 @@ exports.GETLocalizeRecord = async (req, res) => {
 	await localizererender(req, res);
 }
 
-const check_if_localized = async (res, psd, lan_geo) => {
-	if (psd.lan_geo == lan_geo)
-			return true;
-
-	const db = new Database( {
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	} );
-
-	try {
-		const children = await db.query('select * from psd where parent_id = ?', psd.id);
-		for (let i = 0; i < children.length; i++)
-			if (children[i].lan_geo == lan_geo && children[i].version == 1){
-				await db.close();
-				return true;
-			}
-	}
-	catch(err) {
-		res.send(err);
-	}
-	finally {
-		await db.close();
-	}
-	return false;
-}
-
 exports.POSTLocalizeRecord = async (req, res) => {
 	let psd_id = req.body.id;
 	let lan_geo = req.body.lan_geo;
 
-	if (!psd_id || lan_geo =="undefined")
+	if (!psd_id || !lan_geo)
 		await localizererender(req, res, psd_id, lan_geo, "provide data");
 	else if (!req.files || !req.files.grab || !req.files.psd || !req.files.tif || !req.files.preview)
 		await localizererender(req, res, psd_id, lan_geo, "add files");
 	else {
-		const db = new Database( {
-			host		: process.env.DATABASE_HOST,
-			user		: process.env.DATABASE_USER,
-			password	: process.env.DATABASE_PASSWORD,
-			database	: process.env.DATABASE_NAME
-		});
-
+		const db = new Database();
 		try {
 			const prev_psd_res = await db.query('select * from psd where id = ?', psd_id);
-			if (prev_psd_res.length == 0)
-				await localizererender(req, res, psd_id, lan_geo, "wrong id, not found");
-			else {
-				const prev_psd = prev_psd_res[0];
-				if (await check_if_localized(res, prev_psd, lan_geo))
+			if (prev_psd_res.length == 0) {
+				await localizererender(req, res, psd_id, lan_geo, "wrong psd_id");
+				throw "finish";
+			}
+			const prev_psd = prev_psd_res[0];
+			const children = await db.query('select * from psd where parent_id = ?', psd.id);
+			for (let i = 0; i < children.length; i++) {
+				if (children[i].lan_geo == lan_geo && children[i].version == 1) {
 					await localizererender(req, res, psd_id, lan_geo, "already localized");
-				else {
-					const version = 1;
-					const initals = req.session.user.initials;
-
-					let date = await db.query('select now() as now');
-					date = date[0].now;
-					const content = prev_psd.content.replace(/ /g, "-");
-
-					const filename = `${prev_psd.os}/${prev_psd.device}/${prev_psd.code}_${content}_${lan_geo}_${initals}_${version}`;
-					await createfolders(prev_psd.os, prev_psd.device);
-					const grabfile = req.files.grab;
-					const psdfile = req.files.psd;
-					const tiffile = req.files.tif;
-					const previewfile =  req.files.preview;
-					uploadfiles(grabfile, psdfile, tiffile, previewfile, filename);
-
-					await db.query('INSERT INTO psd SET ?', {
-						code : prev_psd.code,
-						designer_id : req.session.user.id,
-						lan_geo : lan_geo,
-						version : version,
-						create_time : date,
-						width : prev_psd.width,
-						height : prev_psd.height,
-						scale : prev_psd.scale,
-						ppi : prev_psd.ppi,
-						grab : `uploads/${filename}_grab.png`,
-						preview : `/previews/${filename}.png`,
-						filename : `uploads/${filename}.psd`,
-						os : prev_psd.os,
-						device : prev_psd.device,
-						content : prev_psd.content,
-						parent_id : prev_psd.id
-					});
-
-					const maxidres = await db.query("SELECT MAX(id) as psd_id FROM psd");
-					new_psd_id = maxidres[0].psd_id
-					await db.query('INSERT INTO tif SET ?', {
-						psd_id : new_psd_id,
-						width : prev_psd.width,
-						height : prev_psd.height,
-						scale : prev_psd.scale,
-						ppi : prev_psd.ppi,
-						filename : `uploads/${filename}.tif`,
-						preview : `/previews/${filename}.png`,
-					});
-
-					res.redirect(`/screenshot/?psd_id=${new_psd_id}`);
+					throw "finish";
 				}
 			}
+			let datetime = await db.query('select now() as now');
+			datetime = datetime[0].now;
+			let new_psd_id = await db.query('select uuid() as id')
+			new_psd_id = new_psd_id[0].id;
+			let tif_id = await db.query('select uuid() as id')
+			tif_id = tif_id[0].id;
+			const version = 1;
+			const dashed_content = prev_psd.content.replace(/ /g, "-");
+			const initals = req.session.user.initals;
+
+			const filename = `${prev_psd.code}_${dashed_content}_${lan_geo}_${initals}_${version}`;
+			createfolders(prev_psd.os, prev_psd.device, filename);
+			const grabfile = req.files.grab;
+			const psdfile = req.files.psd;
+			const tiffile = req.files.tif;
+			const previewfile =  req.files.preview;
+			await uploadfiles(grabfile, psdfile, tiffile, previewfile, prev_psd.os, prev_psd.device, filename);
+
+			await db.query('INSERT INTO psd SET ?', {
+				id : new_psd_id,
+				code : prev_psd.code,
+				designer_id : req.session.user.id,
+				lan_geo : lan_geo,
+				version : version,
+				create_time : date,
+				width : prev_psd.width,
+				height : prev_psd.height,
+				scale : prev_psd.scale,
+				ppi : prev_psd.ppi,
+				grab : `uploads/${prev_psd.os}/${prev_psd.device}/${filename}/${filename}_grab.png`,
+				filename : `uploads/${prev_psd.os}/${prev_psd.device}/${filename}/${filename}.psd`,
+				preview : `/previews/${prev_psd.os}/${prev_psd.device}/${filename}.png`,
+				os : prev_psd.os,
+				device : prev_psd.device,
+				content : prev_psd.content,
+				parent_id : prev_psd.id
+			});
+
+			await db.query('INSERT INTO tif SET ?', {
+				psd_id : new_psd_id,
+				width : prev_psd.width,
+				height : prev_psd.height,
+				scale : prev_psd.scale,
+				ppi : prev_psd.ppi,
+				filename : `uploads/${prev_psd.os}/${prev_psd.device}/${filename}/${filename}.tif`,
+				preview : `/previews/${prev_psd.os}/${prev_psd.device}/${filename}.png`,
+			});
+
+			res.redirect(`/screenshot/?psd_id=${new_psd_id}`);
 		}
 		catch(err) {
-			// res.send(err);
-			throw (err);
+			if (err != "finish") res.send(err);
 		}
 		finally {
 			await db.close();
@@ -344,47 +325,18 @@ exports.POSTLocalizeRecord = async (req, res) => {
 	}
 }
 
-
 exports.GETModifyRecord = async (req, res) => {
 	res.render('designer/modify', {
 		type : req.session.user.type
 	})
 }
 
-const check_if_modified = async (psd) => {
-	const db = new Database( {
-		host		: process.env.DATABASE_HOST,
-		user		: process.env.DATABASE_USER,
-		password	: process.env.DATABASE_PASSWORD,
-		database	: process.env.DATABASE_NAME
-	} );
-
-	try {
-		const children = await db.query('select * from psd where parent_id = ?', psd.id);
-		for (let i = 0; i < children.length; i++)
-			if (children[i].version > psd.version)
-			{
-				await db.close();
-				return true;
-			}
-	}
-	catch(err) {
-		res.send(err);
-	}
-	finally {
-		await db.close();
-	}
-	return false;
-}
-
 exports.POSTModifyRecord = async (req, res) => {
-	//IF THIS PSD IS NOT THE LAST VERSION!
 	let psd_id = req.body.id;
 
 	if (!psd_id) {
 		res.render('designer/modify', {
 			type : req.session.user.type,
-			m_id : psd_id,
 			message : "provide data"
 		});
 	}
@@ -396,79 +348,78 @@ exports.POSTModifyRecord = async (req, res) => {
 		});
 	}
 	else {
-		const db = new Database( {
-			host		: process.env.DATABASE_HOST,
-			user		: process.env.DATABASE_USER,
-			password	: process.env.DATABASE_PASSWORD,
-			database	: process.env.DATABASE_NAME
-		} );
+		const db = new Database();
 
 		try {
-			const initals = req.session.user.initials;
-			let date = await db.query('select now() as now');
-			date = date[0].now;
-
 			const prev_psd_res = await db.query('select * from psd where id = ?', psd_id);
 			if (prev_psd_res.length == 0) {
 				res.render('designer/modify', {
 					type : req.session.user.type,
 					m_id : psd_id,
-					message : "wrong id, not found"
+					message : "wrong id"
 				});
+				throw "finish";
 			}
 			const prev_psd = prev_psd_res[0];
-			if (await check_if_modified(prev_psd))
-			{
-				res.render('designer/modify', {
-					type : req.session.user.type,
-					m_id : psd_id,
-					message : "trying to modify not the latest version"
-				});
-				await db.close();
-				return;
+
+			const children = await db.query('select * from psd where parent_id = ?', psd.id);
+			for (let i = 0; i < children.length; i++) {
+				if (children[i].version > psd.version)
+				{
+					res.render('designer/modify', {
+						type : req.session.user.type,
+						m_id : psd_id,
+						message : "trying to modify not the latest version"
+					});
+					throw "finish";
+				}
 			}
 
+			let datetime = await db.query('select now() as now');
+			datetime = datetime[0].now;
+			let new_psd_id = await db.query('select uuid() as id')
+			new_psd_id = new_psd_id[0].id;
+			let tif_id = await db.query('select uuid() as id')
+			tif_id = tif_id[0].id;
+			const initals = req.session.user.initals;
 			const version = prev_psd.version + 1;
-			const content = prev_psd.content.replace(/ /g, "-");
+			const dashed_content = prev_psd.content.replace(/ /g, "-");
 
-			//generating file paths
-			let filename = `${prev_psd.os}/${prev_psd.device}/${prev_psd.code}_${content}_${prev_psd.lan_geo}_${initals}_${version}`;
-			await createfolders(prev_psd.os, prev_psd.device);
+			const filename = `${prev_psd.code}_${dashed_content}_${prev_psd.lan_geo}_${initals}_${version}`;
+			createfolders(prev_psd.os, prev_psd.device, filename);
 			const grabfile = req.files.grab;
 			const psdfile = req.files.psd;
 			const tiffile = req.files.tif;
-			const previewfile = req.files.preview;
-			uploadfiles(grabfile, psdfile, tiffile, previewfile, filename);
+			const previewfile =  req.files.preview;
+			await uploadfiles(grabfile, psdfile, tiffile, previewfile, prev_psd.os, prev_psd.device, filename);
 
 			await db.query('INSERT INTO psd SET ?', {
 				code : prev_psd.code,
 				designer_id : req.session.user.id,
 				lan_geo : prev_psd.lan_geo,
 				version : version,
-				create_time : date,
+				create_time : datetime,
 				width : prev_psd.width,
 				height : prev_psd.height,
 				scale : prev_psd.scale,
 				ppi : prev_psd.ppi,
-				grab : `uploads/${filename}_grab.png`,
-				preview : `/previews/${filename}.png`,
-				filename : `uploads/${filename}.psd`,
+				grab : `uploads/${prev_psd.os}/${prev_psd.device}/${filename}/${filename}_grab.png`,
+				filename : `uploads/${prev_psd.os}/${prev_psd.device}/${filename}/${filename}.psd`,
+				preview : `/previews/${prev_psd.os}/${prev_psd.device}/${filename}.png`,
 				os : prev_psd.os,
 				device : prev_psd.device,
 				content : prev_psd.content,
 				parent_id : prev_psd.id
 			});
 
-			const maxidres = await db.query("SELECT MAX(id) as psd_id FROM psd");
-			new_psd_id = maxidres[0].psd_id
 			await db.query('INSERT INTO tif SET ?', {
 				psd_id : new_psd_id,
 				width : prev_psd.width,
 				height : prev_psd.height,
 				scale : prev_psd.scale,
 				ppi : prev_psd.ppi,
-				filename : `uploads/${filename}.tif`,
-				preview : `/previews/${filename}.png`,
+				filename : `uploads/${prev_psd.os}/${prev_psd.device}/${filename}/${filename}.tif`,
+				preview : `/previews/${prev_psd.os}/${prev_psd.device}/${filename}.png`,
 			});
 
 			res.redirect(`/screenshot/?psd_id=${new_psd_id}`);

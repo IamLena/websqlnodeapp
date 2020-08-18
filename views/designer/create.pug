@@ -34,30 +34,32 @@ block content
 		div.input-group.form-row.mb-1
 			div.input-group-prepend
 				label.input-group-text(for="lan_geo") language
-				select.custom-select(name="lan_geo", id="lan_geo")
+				select.custom-select(name="lan_geo", id="lan_geo", onchange="this.form.submit()")
 					if (m_pickedlan)
 						option(value=`${m_pickedlan.lan_geo}`) #{m_pickedlan.language} (#{m_pickedlan.country})
 					else
 						option(value="") choose language...
-						each lan in m_lans
-							option(value=lan.lan_geo) #{lan.language} (#{lan.country})
+					each lan in m_lans
+						option(value=lan.lan_geo) #{lan.language} (#{lan.country})
 
 		div.input-group.form-row.mb-1
 			div.input-group-prepend
 				label.input-group-text(for="inputos") operating system
-				select.custom-select(name="os", id="inputos")
+				select.custom-select(name="os", id="inputos", onchange="this.form.submit()")
 					if (m_pickedos)
 						option(value=`${m_pickedos.nickname}`) #{m_pickedos.name}
 					else
-						option(value="undefined") choose os...
-						each m_os in m_oss
-							option(value=m_os.nickname) #{m_os.name}
+						option(value="") choose os...
+					each m_os in m_oss
+						option(value=m_os.nickname) #{m_os.name}
 
 			div.input-group-prepend
 				label.input-group-text(for="inputdevice") device
-				select.custom-select(name="device", id="inputdevice")
-					if (!m_pickedos)
-						option(value="undefined") choose os first
+				select.custom-select(name="device", id="inputdevice", onchange="this.form.submit()")
+					if (m_pickeddev)
+						option(value=`${m_pickeddev.nickname}`) #{m_pickeddev.name}
+					else
+						option(value="") choose device...
 					each m_dev in m_devices
 						option(value=m_dev.nickname) #{m_dev.name}
 
