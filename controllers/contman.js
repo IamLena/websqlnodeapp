@@ -169,7 +169,6 @@ exports.GETmodifypage = async (req, res) => {
 		})
 	}
 	catch(err) {
-		throw err;
 		res.send(err);
 	}
 	finally {
@@ -224,12 +223,11 @@ exports.POSTpublish = async (req, res) => {
 exports.GETfindtomodify = async (req, res) => {
 	const db = new Database();
 	try {
-		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0');
-		let pavesv0 = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version = 0 and cm_id = ?', req.session.user.id);
-		pages = pages.concat(pavesv0);
+		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?)', req.session.user.id);
+		let m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?)', req.session.user.id);
 		res.render('content/findmatrix', {
 			type : req.session.user.type,
-			m_contman : [],
+			m_contman : m_contman,
 			rows : pages,
 		});
 	}
@@ -242,5 +240,36 @@ exports.GETfindtomodify = async (req, res) => {
 }
 
 exports.POSTfindtomodify = async (req, res) => {
+	const db = new Database();
+	try {
+		const contman_id = req.body.contman;
+		let picked_contman;
 
+		let pages;
+		let m_contman;
+		if (contman_id)
+		{
+			picked_contman = await db.query('select * from users where id = ?', contman_id);
+			if (picked_contman.length == 0) throw "invalid cpm_id";
+			picked_contman = picked_contman[0];
+			m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id where users.id != ?', contman_id);
+			pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?) and cm_id = ?', [req.session.user.id, contman_id]);
+		}
+		else {
+			m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id');
+			pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?)', req.session.user.id);
+		}
+		res.render('content/findmatrix', {
+			type : req.session.user.type,
+			m_contman : m_contman,
+			picked_contman : picked_contman,
+			rows : pages,
+		});
+	}
+	catch(err) {
+		res.send(err);
+	}
+	finally {
+		await db.close();
+	}
 }

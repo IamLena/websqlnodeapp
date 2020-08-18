@@ -10,18 +10,7 @@ block content
 					th(score="col") link
 					th(scope="col") name
 					th(scope="col") comment
-
-					th(scope="col")
-						select.dropdown.custom-select(name="contman" id="contmandrop" onchange="this.form.submit()")
-							if (picked_contman)
-								option(value=picked_contman.id) #{picked_contman.firstname} #{picked_contman.lastname}
-							else
-								option(value="") author
-							each item in m_contman
-								option(value=item.id) #{item.firstname} #{item.lastname}
-							if (picked_contman)
-								option(value="") reset
-
+					th(scope="col") author
 					th(scope="col") create_time
 					th(scope="col") version
 			tbody
