@@ -18,6 +18,7 @@ const redirectPersonalPage = (req, res, next) => {
 }
 
 router.get('/', redirectPersonalPage, PagesController.GEThomepage)
+router.get('/features', PagesController.GETfeatures);
 router.get('/personalpage', redirectLogin, PagesController.GETpersonalpage);
 
 router.get('/findscreenshot', redirectLogin, PagesController.GETfindscreenshot);

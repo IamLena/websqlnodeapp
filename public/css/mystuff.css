@@ -70,3 +70,8 @@ table {
 td, th {
 	width: 20%
 }
+
+.autooverflow {
+	overflow-y: auto;
+	margin-top : 20px;
+}

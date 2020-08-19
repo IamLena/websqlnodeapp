@@ -5,6 +5,10 @@ exports.GEThomepage = async (req, res) => {
 	res.render("index");
 }
 
+exports.GETfeatures = async (req, res) => {
+	res.render('features');
+}
+
 exports.GETpersonalpage = async (req, res) => {
 	const db = new Database();
 	try {
