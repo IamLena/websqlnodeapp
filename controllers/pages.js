@@ -35,12 +35,15 @@ exports.GETpersonalpage = async (req, res) => {
 			const user = users[0];
 			const lans = await db.query("select * from lan_geo where lan_geo = ?", user.lan_geo);
 			const language = `${lans[0].language} (${lans[0].country})`;
+			let email;
+			if (user_id != req.session.user.id) email = user.email;
 			res.render('userpage', {
 				fullname : `${user.firstname} ${user.lastname}`,
 				lan_geo : language,
 				image_path : (user.img ? user.img : '/images/anon.png'),
 				userpagetype : user.type,
-				type : req.session.user.type
+				type : req.session.user.type,
+				m_email : email
 			});
 		}
 	} catch ( err ) {
@@ -77,6 +80,7 @@ exports.GETfindscreenshot = async (req, res) => {
 
 		const results = await db.query(sqlquery);
 		res.render("content/findscreen", {
+			type : req.session.user.type,
 			rows : results,
 			m_os : os_results,
 			m_dev : devices,
@@ -174,6 +178,7 @@ exports.POSTfindscreenshot = async (req, res) => {
 		const results = await db.query(sqlquery);
 
 		res.render("content/findscreen", {
+			type : req.session.user.type,
 			rows : results,
 			m_os : os_results,
 			m_dev : devices,
@@ -222,6 +227,7 @@ exports.GETscreenshot = async (req, res) => {
 		let origin_id = cur.parent_id
 
 		res.render('content/screenshot', {
+			type : req.session.user.type,
 			m_screen : screen,
 			m_author_fullname : author_fullname,
 			m_author_id : screen.designer_id,
@@ -287,7 +293,7 @@ exports.GETlistofscreenversions = async (req, res) => {
 
 	try {
 		let id = req.query.psd_id;
-		let psds = await db.query(`select * from psd where id = ${id}`);
+		let psds = await db.query(`select * from psd where id = ?`, id);
 		if (psds.length == 0) throw "invalid psd_id";
 		let sqlquery = `
 		select os_name, dev_name, language, country, users.id, users.firstname, users.lastname, preview, create_time, psd_id, version
@@ -308,6 +314,7 @@ exports.GETlistofscreenversions = async (req, res) => {
 
 		let versions =  await db.query(sqlquery);
 		res.render("content/findscreen", {
+			type : req.session.user.id,
 			rows : versions,
 			m_os : [],
 			m_dev : [],
@@ -351,6 +358,7 @@ exports.GETlistofscreenlocals = async (req, res) => {
 
 		let children = await db.query(sqlquery);
 		res.render("content/findscreen", {
+			type : req.session.user.type,
 			rows : children,
 			m_os : [],
 			m_dev : [],

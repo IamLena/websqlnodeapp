@@ -58,8 +58,10 @@ block content
 				select.custom-select(name="device", id="inputdevice", onchange="this.form.submit()")
 					if (m_pickeddev)
 						option(value=`${m_pickeddev.nickname}`) #{m_pickeddev.name}
-					else
+					else if (m_pickedos)
 						option(value="") choose device...
+					else
+						option(value="") choose os first
 					each m_dev in m_devices
 						option(value=m_dev.nickname) #{m_dev.name}
 

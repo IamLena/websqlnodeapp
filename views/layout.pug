@@ -28,9 +28,8 @@ body
         h3.masthead-brand Cover
         nav.nav.nav-masthead.justify-content-center
           a.nav-link.active(href='/') Home
-          if (`${type}` != 1 && `${type}` != 2 && `${type}` != 3)
-            a.nav-link(href='/features') Features
-          else
+          a.nav-link(href='/features') Features
+          if (`${type}` == 1 || `${type}` == 2 || `${type}` == 3)
             div.nav-item.dropdown.ml-3
                 a.nav-link.dropdown-toggle(id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="showdropdown('desdrop')")
                   | Action

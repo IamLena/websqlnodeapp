@@ -14,3 +14,5 @@ block content
 					h4  graphic production artist
 				h1 #{fullname}
 				p #{lan_geo}
+				if (m_email)
+					a(href=`mailto:${m_email}`) Send email

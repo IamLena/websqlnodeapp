@@ -3,27 +3,23 @@ extends ../layout
 block content
 	if (m_screen)
 		div.container
-		div.row
-			div.col-sm
-				p
-				| for #{m_os_name.name},  #{m_device_name.name}
-				p #{m_language}
-				p #{m_screen.content}
-				p version ##{m_screen.version}
-				p #{m_screen.height} x #{m_screen.width}
-				p
-					| by
-					a(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
-				//- p #{m_screen.create_time.toUTCString().split(' ').slice(0, 5).join(' ')}
-				p #{m_screen.create_time.toLocaleString()}
-				if (origin_id)
+			div.row
+				div.col-sm
 					p
-						a(href=`/screenshot/?psd_id=${origin_id}`) origin file
-				else
+					| for #{m_os_name.name},	#{m_device_name.name},	#{m_screen.height} x #{m_screen.width}
+					p #{m_language}
+					p #{m_screen.content}
+					p version ##{m_screen.version} by
+						a.linkfontstyle(href=`/personalpage/?id=${m_author_id}`)  #{m_author_fullname}
+					p #{m_screen.create_time.toLocaleString()}
 					p
-						a(href=`/listoflocals/?psd_id=${m_screen.id}`) list of locals
-				a(href=`/listofversions/?psd_id=${m_screen.id}`) list of versions
-			div.col-sm
-				img.screenpic(src=`${m_screen.preview}`)
-		a.btn.btn-secondary.mb-2(href=`/download_psd/?psd_id=${m_screen.id}`) download psd
-		a.btn.btn-secondary(href=`/download_tif/?psd_id=${m_screen.id}`) download tif
+						if (origin_id)
+							a.linkfontstyle(href=`/screenshot/?psd_id=${origin_id}`) origin file
+						else
+							a.linkfontstyle(href=`/listofscreenlocals/?psd_id=${m_screen.id}`) list of locals
+					p
+						a.linkfontstyle(href=`/listofscreenversions/?psd_id=${m_screen.id}`) 	list of versions
+					a.btn.btn-secondary(href=`/download_psd/?psd_id=${m_screen.id}`) download psd
+					a.btn.btn-secondary(href=`/download_tif/?psd_id=${m_screen.id}`) download tif
+				div.col-sm
+					img.screenpic(src=`${m_screen.preview}`)

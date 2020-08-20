@@ -59,7 +59,7 @@
 }
 
 tr.data:hover {
-	background-color :  #ffda75;
+	background-color : #595859;
 }
 
 table {
@@ -74,4 +74,10 @@ td, th {
 .autooverflow {
 	overflow-y: auto;
 	margin-top : 20px;
+}
+
+.linkfontstyle {
+	font-style: italic;
+	font-weight: bold;
+	text-decoration: underline;
 }

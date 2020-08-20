@@ -62,9 +62,9 @@ block content
 						td #{row.dev_name}
 						td #{row.language} (#{row.country})
 						td
-							a(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
+							a.linkfontstyle(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
 						td
 							img.smalimg(src=`${row.preview}`)
 						td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
 						td
-							a(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}
+							a.linkfontstyle(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}
