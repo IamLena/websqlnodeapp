@@ -34,11 +34,14 @@ block content
 			label.btn.btn-file(for="inputpreview" id="add preview") add preview
 			input.input-file(type="file" id="inputpreview", name="preview",accept=".png", onchange="changefile('add preview', this.files[0].name)")
 
-
 		button.btn.btn-block.btn-success(type='submit') upload
 
 		if (message)
-			p.text-center.text-warning #{message}
+			p.text-center.text-warning
+				if (localized_id)
+					a.linkfontstyle(href=`/screenshot/?psd_id=${localized_id}`) #{message}
+				else
+					| #{message}
 		else
 			p.text-center.text-warning &nbsp;
 

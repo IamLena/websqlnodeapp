@@ -205,7 +205,7 @@ exports.POSTCreateRecord = async (req, res) => {
 	}
 }
 
-const localizererender = async (req, res, psd_id, lan_geo, msg) => {
+const localizererender = async (req, res, psd_id, lan_geo, msg, localized_id) => {
 	const db = new Database();
 	try {
 		let lan_results, pickedlan;
@@ -221,7 +221,8 @@ const localizererender = async (req, res, psd_id, lan_geo, msg) => {
 			m_lans : lan_results,
 			m_pickedlan : pickedlan,
 			m_id : psd_id,
-			message : msg
+			message : msg,
+			localized_id : localized_id,
 		});
 	}
 	catch(err) {
@@ -256,7 +257,7 @@ exports.POSTLocalizeRecord = async (req, res) => {
 			const children = await db.query('select * from psd where parent_id = ?', psd_id);
 			for (let i = 0; i < children.length; i++) {
 				if (children[i].lan_geo == lan_geo && children[i].version == 1) {
-					await localizererender(req, res, psd_id, lan_geo, "already localized");
+					await localizererender(req, res, psd_id, lan_geo, "already localized", children[i].id);
 					throw "finish";
 				}
 			}
@@ -284,7 +285,7 @@ exports.POSTLocalizeRecord = async (req, res) => {
 				designer_id : req.session.user.id,
 				lan_geo : lan_geo,
 				version : version,
-				create_time : date,
+				create_time : datetime,
 				width : prev_psd.width,
 				height : prev_psd.height,
 				scale : prev_psd.scale,
@@ -299,6 +300,7 @@ exports.POSTLocalizeRecord = async (req, res) => {
 			});
 
 			await db.query('INSERT INTO tif SET ?', {
+				id : tif_id,
 				psd_id : new_psd_id,
 				width : prev_psd.width,
 				height : prev_psd.height,
@@ -312,7 +314,6 @@ exports.POSTLocalizeRecord = async (req, res) => {
 		}
 		catch(err) {
 			if (err != "finish") res.send(err);
-			throw err; // ERROR HERE
 		}
 		finally {
 			await db.close();
