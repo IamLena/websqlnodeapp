@@ -233,7 +233,7 @@ const localizererender = async (req, res, psd_id, lan_geo, msg) => {
 }
 
 exports.GETLocalizeRecord = async (req, res) => {
-	await localizererender(req, res);
+	await localizererender(req, res, req.query.psd_id);
 }
 
 exports.POSTLocalizeRecord = async (req, res) => {
@@ -312,7 +312,7 @@ exports.POSTLocalizeRecord = async (req, res) => {
 		}
 		catch(err) {
 			if (err != "finish") res.send(err);
-			throw err;
+			throw err; // ERROR HERE
 		}
 		finally {
 			await db.close();
@@ -321,9 +321,17 @@ exports.POSTLocalizeRecord = async (req, res) => {
 }
 
 exports.GETModifyRecord = async (req, res) => {
-	res.render('designer/modify', {
-		type : req.session.user.type
-	})
+	if (req.query.psd_id) {
+		res.render('designer/modify', {
+			type : req.session.user.type,
+			m_id : req.query.psd_id
+		});
+	}
+	else {
+		res.render('designer/modify', {
+			type : req.session.user.type
+		});
+	}
 }
 
 exports.POSTModifyRecord = async (req, res) => {
