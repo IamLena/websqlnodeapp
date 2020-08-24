@@ -16,12 +16,13 @@ block content
 			tbody
 				for row in rows
 					tr
-						td #{row.link}
+						td
+							a.linkfontstyle(href=`${row.link}`) #{row.link}
 						td #{row.name}
 						td #{row.comment}
 						td
-							a(href=`/personalpage/?id=${row.cm_id}`) #{row.firstname} #{row.lastname}
+							a.linkfontstyle(href=`/personalpage/?id=${row.cm_id}`) #{row.firstname} #{row.lastname}
 
 						td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
 						td
-							a(href=`/concat/modify/?page_id=${row.id}`) v#{row.version}
+							a.linkfontstyle(href=`/contman/modify/?page_id=${row.id}`) v#{row.version}

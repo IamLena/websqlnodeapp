@@ -69,12 +69,15 @@ exports.POSTaddplaceholder = async (req, res) => {
 			const ids = await db.query('select uuid() as id');
 			await db.query('insert into placeholder set ?', {
 				id: ids[0].id,
-				page_id : page_id,
 				link : link,
 				comment : comment,
 				os : screen.os,
 				device : screen.device,
 				tif_id : screen.id
+			});
+			await db.query('insert into place_page set ?', {
+				page_id : page_id,
+				place_id : ids[0].id
 			});
 			res.redirect(`/contman/modify/?page_id=${page_id}`);
 		}
@@ -86,7 +89,7 @@ exports.POSTaddplaceholder = async (req, res) => {
 
 			const author_lans = await db.query('select lan_geo from users where id = ?', page.cm_id);
 			const lan = author_lans[0].lan_geo;
-			let sqlquery = `select tif.id as tif_id, psd_id, designer_id, tif.preview as tif_preview, version, create_time, os, device from tif inner join psd on tif.psd_id = psd.id and lan_geo = "${lan}"`;
+			let sqlquery = `select tif.id as tif_id, psd_id, designer_id, tif.preview as tif_preview, version, create_time, os, device from tif inner join psd on tif.psd_id = psd.id and lan_geo = "${lan}" and psd.deleted = 0`;
 
 			let os_results = await db.query(`select distinct os.nickname, os.name from os inner join ( `.concat(sqlquery, ` ) tmp on os.nickname = tmp.os`));
 			let dev_results = await db.query(`select distinct devices.nickname, devices.name from devices inner join ( `.concat(sqlquery, ` ) tmp on devices.nickname = tmp.device`));
@@ -96,7 +99,13 @@ exports.POSTaddplaceholder = async (req, res) => {
 			sqlquery = `select os_name, devices.name as dev_name, tif_id, psd_id, designer_id, tif_preview, version, create_time from devices inner join ( `.concat(sqlquery, ` ) tmp2 on devices.nickname = tmp2.device`);
 			sqlquery = `select os_name, dev_name, tif_id, psd_id, tif_preview, version, create_time, designer_id, concat(users.firstname, " ", users.lastname) as fullname from users inner join ( `.concat(sqlquery, ` ) tmp3 on users.id = tmp3.designer_id`);
 
-			const results = await db.query(sqlquery);
+			// const results = await db.query(sqlquery);
+			results = await db.query(`select os as os_name, device as dev_name, tif.id as tif_id, psd_id, tif.preview as tif_preview, version, psd.create_time, designer_id, "name" as fullname from
+			tif inner join psd
+			on tif.psd_id = psd.id
+			where lan_geo = '${lan}'
+			and psd.deleted = 0`);
+
 			res.render('contman/addplaceholder', {
 				type : req.session.user.type,
 				m_page_id : page_id,
@@ -144,16 +153,20 @@ exports.GETmodifypage = async (req, res) => {
 		}
 		const m_author = users_res[0];
 
-		sqlquery = `select link, comment, placeholder.tif_id, psd_id, preview as preview, content
+		let sqlquery = `select id as psd_id, content, tmp2.preview, link, place_comment as comment, tif_id, place_deleted
 		from
-		placeholder inner join (
-		select tif.id as tif_id, psd_id, tif.preview, psd.lan_geo, content
+		psd inner join (
+		select psd_id, preview, link, place_comment, os, device, tif_id, place_deleted, page_id, place_id
 		from
-		tif inner join psd
-		on tif.psd_id = psd.id ) tmp
-		on tmp.tif_id = placeholder.tif_id
-		where page_id = "${page_id}" and
-		lan_geo = "${m_author.lan_geo}"`;
+		tif inner join (
+		select link, comment as place_comment, os, device, tif_id, deleted as place_deleted, page_id, place_id
+		from
+		placeholder inner join place_page
+		on placeholder.id = place_page.place_id
+		and page_id = '${page_id}') tmp1
+		on tif.id = tmp1.tif_id ) tmp2
+		on psd.id = tmp2.psd_id
+		and lan_geo = '${m_author.lan_geo}'`;
 
 		const rows = await db.query(sqlquery);
 
@@ -170,6 +183,7 @@ exports.GETmodifypage = async (req, res) => {
 	}
 	catch(err) {
 		res.send(err);
+		throw err;
 	}
 	finally {
 		await db.close();
@@ -209,7 +223,16 @@ exports.POSTpublish = async (req, res) => {
 		}
 
 		await db.query('insert into pages set ?', newpage);
-		res.send('done');
+
+		placeholders = await db.query('select * from placeholder inner join place_page on placeholder.id = place_page.place_id and page_id = ?', page_id);
+		for (let i = 0; i < placeholders.length; i++) {
+			await db.query('insert into place_page set ?', {
+				page_id : id,
+				place_id : placeholders[0].id
+			});
+		}
+
+		res.redirect(`/matrix/?page_id=${id}`);
 	}
 	catch(err) {
 		res.send('err');
@@ -225,7 +248,7 @@ exports.GETfindtomodify = async (req, res) => {
 	try {
 		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?)', req.session.user.id);
 		let m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?)', req.session.user.id);
-		res.render('content/findmatrix', {
+		res.render('contman/findtomodify', {
 			type : req.session.user.type,
 			m_contman : m_contman,
 			rows : pages,
@@ -259,7 +282,7 @@ exports.POSTfindtomodify = async (req, res) => {
 			m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id');
 			pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0 or (version = 0 and cm_id = ?)', req.session.user.id);
 		}
-		res.render('content/findmatrix', {
+		res.render('contman/findtomodify', {
 			type : req.session.user.type,
 			m_contman : m_contman,
 			picked_contman : picked_contman,

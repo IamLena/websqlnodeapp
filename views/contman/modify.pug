@@ -1,10 +1,10 @@
 extends ../layout
 
 block content
-	a(href=`${m_page.link}`) #{m_page.name} (#{m_page.comment})
+	a.linkfontstyle(href=`${m_page.link}`) #{m_page.name} (#{m_page.comment})
 	p #{m_page.create_time.toLocaleString()}
 		|  by
-		a(href=`/personalpage/?id=${m_author.id}`)  #{m_author.fullname}
+		a.linkfontstyle(href=`/personalpage/?id=${m_author.id}`)  #{m_author.fullname}
 
 	table.table.table-sm.table-dark
 		thead
@@ -29,12 +29,12 @@ block content
 			for row in m_rows
 				tr
 					td
-						a(href=`${row.link}`) #{row.link}
+						a.linkfontstyle(href=`${row.link}`) #{row.link}
 					td
 						img.smalimg(src=`${row.link}`)
 					td #{row.comment}
 					td
-						a(href=`/screenshot/?psd_id=${row.psd_id}`) link
+						a.linkfontstyle(href=`/screenshot/?psd_id=${row.psd_id}`) link
 						br
 						img.smalimg(src=`${row.preview}`)
 						br
@@ -43,7 +43,7 @@ block content
 					if (`${m_user.id}`!= `${m_author.id}`)
 						td
 							if (row.local_psd_id)
-								a(href=`/screenhost/?psd_id=${row.local_psd_id}`) link
+								a.linkfontstyle(href=`/screenhost/?psd_id=${row.local_psd_id}`) link
 								br
 								img.smalimg(src=`${row.local_preview}`)
 								br
@@ -59,15 +59,22 @@ block content
 									a.dropdown-item(href='#') use #{m_author.lan}
 									a.dropdown-item(href='#') use local
 									a.dropdown-item(href='#') chose tif from database
-					if (`${m_user.id}`== `${m_author.id}`)
-						td
-							button.btn.btn-secondary(href="#") alter
+					//- if (`${m_user.id}`== `${m_author.id}`)
+					//- 	td
+					//- 		button.btn.btn-secondary(href="#") alter
 
-	if (`${m_user.id}`== `${m_author.id}`)
-		form.mb-2(action="/contman/addplaceholder", method="post")
-			input(type="hidden" name="id" value=`${m_page.id}`)
-			button.btn.btn-secondary(type="sumbit") add placeholder
+	if (m_page.place_deleted)
+		p DELETED
+	else
+		if (`${m_user.id}`== `${m_author.id}`)
+			form.mb-2(action="/contman/addplaceholder", method="post")
+				input(type="hidden" name="id" value=`${m_page.id}`)
+				button.btn.btn-secondary(type="sumbit") add placeholder
 
-		form.mb-2(action="/contman/publish", method="post")
-			input(type="hidden" name="id" value=`${m_page.id}`)
-			button.btn.btn-secondary(type="sumbit") publish
+			form.mb-2(action="/contman/publish", method="post")
+				input(type="hidden" name="id" value=`${m_page.id}`)
+				button.btn.btn-secondary(type="sumbit") publish
+
+			form.mb-2(action="/contman/deletepage", method="post")
+				input(type="hidden" name="id" value=`${m_page.id}`)
+				button.btn.btn-secondary(type="sumbit") delete

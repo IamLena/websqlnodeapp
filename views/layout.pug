@@ -37,12 +37,12 @@ body
                   a.dropdown-item(href='/findscreenshot') find sreenshot
                   a.dropdown-item(href='/findpage') find page
                   if (`${type}` == 1)
-                    a.dropdown-item(href='/designer/create') create psd
-                    a.dropdown-item(href='/designer/localize') localize psd
-                    a.dropdown-item(href='/designer/modify') modify psd
+                    a.dropdown-item(href='/designer/create') create screenshot
+                    a.dropdown-item(href='/designer/localize') localize screenshot
+                    a.dropdown-item(href='/designer/modify') modify screenshot
                   else if (`${type}` == 2)
-                    a.dropdown-item(href='/contman/create') create matrix
-                    a.dropdown-item(href='/contman/findtomodify') modify/publish matrix
+                    a.dropdown-item(href='/contman/create') create page
+                    a.dropdown-item(href='/contman/findtomodify') modify/publish page
                   div.dropdown-divider
                   a.dropdown-item(href='/auth/logout') log out
 

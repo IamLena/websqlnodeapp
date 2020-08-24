@@ -2,7 +2,7 @@ extends ../layout
 
 block content
 	h1 finding sceenshot
-	form(action="/findscreenshot", method="post")
+	form(id="filterscreen" action="/findscreenshot", method="post")
 		if (m_showdel)
 			input(type='checkbox' id = "showdel" name='showdel' checked onchange = "this.form.submit()")
 		else

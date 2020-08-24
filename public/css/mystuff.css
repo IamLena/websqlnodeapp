@@ -29,13 +29,17 @@
 	margin-right: 4px;
 }
 
+#filterscreen {
+	height: 70%;
+}
+
 .personalpic {
 	width: 75%;
 	background-color : white;
 }
 
 .screenpic {
-	max-width: 70%;
+	max-width: 60%;
 	max-height: 80%;
 }
 

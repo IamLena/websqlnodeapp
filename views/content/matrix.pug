@@ -1,12 +1,12 @@
 extends ../layout
 
 block content
-	a(href=`${m_page.link}`) #{m_page.name} (#{m_page.comment})
+	a.linkfontstyle(href=`${m_page.link}`) #{m_page.name} (#{m_page.comment})
 	p #{m_page.create_time.toLocaleString()}
 		|  by
-		a(href=`/personalpage/?id=${m_author.id}`)  #{m_author.fullname}
+		a.linkfontstyle(href=`/personalpage/?id=${m_author.id}`)  #{m_author.fullname}
 		br
-		a(href=`/listofpageversions/?page_id=${m_page.id}`) list of versions
+		a.linkfontstyle(href=`/listofpageversions/?page_id=${m_page.id}`) list of versions
 
 	table.table.table-sm.table-dark
 		thead
@@ -30,12 +30,12 @@ block content
 			for row in m_rows
 				tr
 					td
-						a(href=`${row.link}`) #{row.link}
+						a.linkfontstyle(href=`${row.link}`) #{row.link}
 					td
 						img.smalimg(src=`${row.link}`)
 					td #{row.comment}
 					td
-						a(href=`/screenshot/?psd_id=${row.origin_psd_id}`) link
+						a.linkfontstyle(href=`/screenshot/?psd_id=${row.origin_psd_id}`) link
 						br
 						img.smalimg(src=`${row.origin_tif_preview}`)
 						br
@@ -45,9 +45,9 @@ block content
 						if (picked_lan)
 							if (row.local_psd_id)
 								if (`${row.local_psd_id}` == `${row.origin_psd_id}`)
-									a(href=`/screenshot/?psd_id=${row.origin_psd_id}`) use #{m_author.lan}
+									a.linkfontstyle(href=`/screenshot/?psd_id=${row.origin_psd_id}`) use #{m_author.lan}
 								else
-									a(href=`/screenhost/?psd_id=${row.local_psd_id}`) link
+									a.linkfontstyle(href=`/screenhost/?psd_id=${row.local_psd_id}`) link
 									br
 									img.smalimg(src=`${row.local_tif_preview}`)
 									br

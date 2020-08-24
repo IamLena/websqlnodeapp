@@ -44,7 +44,6 @@ block content
 						button.close(type='button' data-dismiss='modal' aria-label='Close')
 							span(aria-hidden='true') &times;
 					.modal-body
-						| here is the form
 						form(action="#", method="post")
 							table.table.table-sm.table-dark
 								thead
@@ -87,7 +86,7 @@ block content
 										th(scope="col") version
 								tbody
 									for row in rows
-										tr.data(onclick=`hello(${row.tif_id})` data-dismiss='modal' aria-label='Close')
+										tr.data(onclick=`hello('${row.tif_id}')` data-dismiss='modal' aria-label='Close')
 											td #{row.os_name}
 											td #{row.dev_name}
 											td

@@ -442,7 +442,33 @@ exports.GETpage = async (req, res) => {
 		try {
 			let page = await db.query('select * from pages where id = ?', page_id);
 			let lans = await db.query('select * from lan_geo');
-			let rows = await db.query('select content as origin_tif_content, origin_tif_preview, origin_psd_id, place_id, link, comment from psd inner join ( select tif.preview as origin_tif_preview, placeholder.id as place_id, psd_id as origin_psd_id, link, comment from tif inner join placeholder on tif.id = placeholder.tif_id where page_id = ?) tmp2 on psd.id = tmp2.origin_psd_id', page_id);
+
+			let rows = await db.query(`select *
+			from (
+				select origin_psd_id, origin_tif_id, origin_tif_preview, origin_tif_content, link, comment, place_id
+				from (
+					select psd_id as origin_psd_id, tif.id as origin_tif_id, tif.preview as origin_tif_preview, content as origin_tif_content
+					from tif
+					inner join psd
+					on tif.psd_id = psd.id) tmp1
+					inner join (
+						select link, comment, place_id, tif_id
+						from placeholder
+						inner join place_page
+						on placeholder.id = place_page.place_id
+						and page_id = '${page_id}'
+						and deleted = 0) tmp2
+					on tmp1.origin_tif_id = tmp2.tif_id) tmp4
+				left join (
+					select psd_id as local_psd_id, tif_id as local_tif_id, tif_preview as local_tif_preview, content as local_tif_content, place_id
+					from psd
+					inner join (
+						select id as tif_id, psd_id, tif.preview as tif_preview, place_id
+						from tif
+						inner join local_placeholder
+						on tif.id = local_placeholder.tif_id) tmp3
+					on psd.id = tmp3.tif_id) tmp5
+				on tmp4.place_id = tmp5.place_id`);
 
 			if (page.length > 0)
 			{
@@ -463,6 +489,7 @@ exports.GETpage = async (req, res) => {
 		}
 		catch(err) {
 			res.send(err);
+			throw err;
 		}
 		finally {
 			await db.close();
@@ -488,29 +515,33 @@ exports.POSTpage = async (req, res) => {
 
 			let lans = await db.query('select * from lan_geo');
 			let page = await db.query('select * from pages where id = ?', page_id);
-			let rows = await db.query(`select psd.content as local_tif_content, local_tif_preview, local_psd_id, placeholder_id, local_tif_id, psd.lan_geo, origin_tif_content, origin_tif_preview, origin_psd_id, link, comment
-			from psd inner join (
-				select tif.preview as local_tif_preview, psd_id as local_psd_id, placeholder_id, local_tif_id, lan_geo, origin_tif_content, origin_tif_preview, origin_psd_id, link, comment
-				from
-				tif inner join (
-					select placeholder_id, tif_id as local_tif_id,
-					lan_geo, origin_tif_content, origin_tif_preview, origin_psd_id, link, comment
-					from
-					local_placeholder inner join (
-						select content as origin_tif_content, origin_tif_preview, origin_psd_id, placeholder_id, link, comment
-						from
-						psd inner join (
-							select tif.preview as origin_tif_preview, placeholder.id as placeholder_id,
-							psd_id as origin_psd_id, link, comment
-							from
-							tif inner join placeholder
-							on tif.id = placeholder.tif_id
-							where page_id = "${page_id}") tmp2
-						on psd.id = tmp2.origin_psd_id
-						where lan_geo="${lan}") tmp3
-					on local_placeholder.place_id = tmp3.placeholder_id) tmp4
-				on tif.id = tmp4.local_tif_id ) tmp5
-			on psd.id = tmp5.local_psd_id`);
+			let rows = await db.query(`select *
+			from (
+				select origin_psd_id, origin_tif_id, origin_tif_preview, origin_tif_content, link, comment, place_id
+				from (
+					select psd_id as origin_psd_id, tif.id as origin_tif_id, tif.preview as origin_tif_preview, content as origin_tif_content
+					from tif
+					inner join psd
+					on tif.psd_id = psd.id) tmp1
+					inner join (
+						select link, comment, place_id, tif_id
+						from placeholder
+						inner join place_page
+						on placeholder.id = place_page.place_id
+						and page_id = '${page_id}'
+						and deleted = 0) tmp2
+					on tmp1.origin_tif_id = tmp2.tif_id) tmp4
+				left join (
+					select psd_id as local_psd_id, tif_id as local_tif_id, tif_preview as local_tif_preview, content as local_tif_content, place_id
+					from psd
+					inner join (
+						select id as tif_id, psd_id, tif.preview as tif_preview, place_id
+						from tif
+						inner join local_placeholder
+						on tif.id = local_placeholder.tif_id) tmp3
+					on psd.id = tmp3.tif_id
+                    and lan_geo='${lan}') tmp5
+				on tmp4.place_id = tmp5.place_id`);
 			if (page.length > 0)
 			{
 				page = page[0];
