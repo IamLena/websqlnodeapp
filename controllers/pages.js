@@ -85,7 +85,8 @@ exports.GETfindscreenshot = async (req, res) => {
 			m_os : os_results,
 			m_dev : devices,
 			m_lan : lans,
-			m_designer : designers
+			m_designer : designers,
+			m_showdel : true
 		});
 	}
 	catch(err) {
@@ -112,6 +113,10 @@ exports.POSTfindscreenshot = async (req, res) => {
 		from
 		tif inner join psd
 		on tif.psd_id = psd.id`;
+
+		if (!req.body.showdel) {
+			sqlquery = sqlquery.concat(` and tif.deleted = 0`);
+		}
 
 		sqlquery = `select os.nickname as os_nickname, os.name as os_name,
 		device, tif_lan_geo, designer_id, preview, create_time, psd_id, version
@@ -187,7 +192,8 @@ exports.POSTfindscreenshot = async (req, res) => {
 			picked_os : picked_os,
 			picked_dev : picked_dev,
 			picked_lan : picked_lan,
-			picked_designer : picked_designer
+			picked_designer : picked_designer,
+			m_showdel : req.body.showdel
 		});
 	}
 	catch(err) {
@@ -228,6 +234,7 @@ exports.GETscreenshot = async (req, res) => {
 
 		res.render('content/screenshot', {
 			type : req.session.user.type,
+			m_user : req.session.user,
 			m_screen : screen,
 			m_author_fullname : author_fullname,
 			m_author_id : screen.designer_id,
@@ -378,7 +385,7 @@ exports.GETfindpage = async (req, res) => {
 	const db = new Database();
 	try {
 		let pages = await db.query('select name, pages.id, link, comment, cm_id, firstname, lastname, link, version, create_time from pages inner join users on pages.cm_id = users.id where version > 0');
-		let m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id');
+		let m_contman = await db.query('select distinct users.id, users.firstname, users.lastname from pages inner join users on pages.cm_id = users.id where pages.version != 0');
 		res.render('content/findmatrix', {
 			type : req.session.user.type,
 			m_contman : m_contman,
@@ -549,6 +556,36 @@ exports.GETlistofversions = async (req, res) => {
 		res.send(err);
 	}
 	finally {
+		await db.close();
+	}
+}
+
+
+exports.GETdeletescreen = async (req, res) => {
+	let psd_id = req.query.psd_id
+	if (!psd_id)
+	{
+		res.redirect('/findscreenshot');
+		return;
+	}
+
+	const db = new Database();
+	try {
+		const psds = await db.query('select *from psd where id = ?', psd_id);
+		if (psds.length == 0)
+			throw "wrong id";
+		const deletingpsd = psds[0];
+		if (deletingpsd.designer_id != req.session.user.id)
+			throw "you don't have permissions to delete this record";
+		await db.query('update psd set deleted = 1 where id = ?', psd_id);
+		await db.query('update tif set deleted = 1 where psd_id = ?', psd_id);
+		res.redirect(`/screenshot/?psd_id=${psd_id}`);
+	}
+	catch(err) {
+		res.send(err);
+		throw err;
+	}
+	finally{
 		await db.close();
 	}
 }

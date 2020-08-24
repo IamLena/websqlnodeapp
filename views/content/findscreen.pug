@@ -1,70 +1,75 @@
 extends ../layout
 
 block content
-	h1 filtering
-
+	h1 finding sceenshot
 	form(action="/findscreenshot", method="post")
-		table.table.table-sm.table-dark
-			thead
-				tr
-					th(scope="col")
-						select.dropdown.custom-select(name="os" id="osdrop" onchange="this.form.submit()")
-							if (picked_os)
-								option(value=picked_os.nickname) #{picked_os.name}
-							else
-								option(value="") os
-							each item in m_os
-								option(value=item.nickname) #{item.name}
-							if (picked_os)
-								option(value="") reset
+		if (m_showdel)
+			input(type='checkbox' id = "showdel" name='showdel' checked onchange = "this.form.submit()")
+		else
+			input(type='checkbox' id = "showdel" name='showdel' onchange = "this.form.submit()")
+		label(for="showdel") show deleted
+		div.tableWrap
+			table.table.table-sm.table-dark
+				thead
+					tr
+						th(scope="col")
+							select.dropdown.custom-select(name="os" id="osdrop" onchange="this.form.submit()")
+								if (picked_os)
+									option(value=picked_os.nickname) #{picked_os.name}
+								else
+									option(value="") os
+								each item in m_os
+									option(value=item.nickname) #{item.name}
+								if (picked_os)
+									option(value="") reset
 
-					th(scope="col")
-						select.dropdown.custom-select(name="dev" id="devdrop" onchange="this.form.submit()")
-							if (picked_dev)
-								option(value=picked_dev.nickname) #{picked_dev.name}
-							else
-								option(value="") device
-							each item in m_dev
-								option(value=item.nickname) #{item.name}
-							if (picked_dev)
-								option(value="") reset
+						th(scope="col")
+							select.dropdown.custom-select(name="dev" id="devdrop" onchange="this.form.submit()")
+								if (picked_dev)
+									option(value=picked_dev.nickname) #{picked_dev.name}
+								else
+									option(value="") device
+								each item in m_dev
+									option(value=item.nickname) #{item.name}
+								if (picked_dev)
+									option(value="") reset
 
-					th(scope="col")
-						select.dropdown.custom-select(name="lan" id="landrop" onchange="this.form.submit()")
-							if (picked_lan)
-								option(value=picked_lan.lan_geo) #{picked_lan.language} (#{picked_lan.country})
-							else
-								option(value="") language (country)
-							each item in m_lan
-								option(value=item.lan_geo) #{item.language} (#{item.country})
-							if (picked_lan)
-								option(value="") reset
+						th(scope="col")
+							select.dropdown.custom-select(name="lan" id="landrop" onchange="this.form.submit()")
+								if (picked_lan)
+									option(value=picked_lan.lan_geo) #{picked_lan.language} (#{picked_lan.country})
+								else
+									option(value="") language (country)
+								each item in m_lan
+									option(value=item.lan_geo) #{item.language} (#{item.country})
+								if (picked_lan)
+									option(value="") reset
 
-					th(scope="col")
-						select.dropdown.custom-select(name="designer" id="designerdrop" onchange="this.form.submit()")
-							if (picked_designer)
-								option(value=picked_designer.id) #{picked_designer.firstname} #{picked_designer.lastname}
-							else
-								option(value="") designer
-							each item in m_designer
-								option(value=item.id) #{item.firstname} #{item.lastname}
-							if (picked_designer)
-								option(value="") reset
+						th(scope="col")
+							select.dropdown.custom-select(name="designer" id="designerdrop" onchange="this.form.submit()")
+								if (picked_designer)
+									option(value=picked_designer.id) #{picked_designer.firstname} #{picked_designer.lastname}
+								else
+									option(value="") designer
+								each item in m_designer
+									option(value=item.id) #{item.firstname} #{item.lastname}
+								if (picked_designer)
+									option(value="") reset
 
-					th(scope="col") preview
-					th(scope="col") create_time
-					th(scope="col") version
-			tbody
-				for row in rows
-					//- tr.data(onclick=`redirect('${row.psd_id}')`)
-					tr.data
-						td #{row.os_name}
-						td #{row.dev_name}
-						td #{row.language} (#{row.country})
-						td
-							a.linkfontstyle(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
-						td
-							img.smalimg(src=`${row.preview}`)
-						td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
-						td
-							a.linkfontstyle(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}
+						th(scope="col") preview
+						th(scope="col") create_time
+						th(scope="col") version
+				tbody
+					for row in rows
+						//- tr.data(onclick=`redirect('${row.psd_id}')`)
+						tr.data
+							td #{row.os_name}
+							td #{row.dev_name}
+							td #{row.language} (#{row.country})
+							td
+								a.linkfontstyle(href=`/personalpage/?id=${row.designer_id}`) #{row.firstname} #{row.lastname}
+							td
+								img.smalimg(src=`${row.preview}`)
+							td #{row.create_time.toUTCString().split(' ').slice(1, 5).join(' ')}
+							td
+								a.linkfontstyle(href=`/screenshot/?psd_id=${row.psd_id}`) v#{row.version}

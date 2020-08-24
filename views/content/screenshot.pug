@@ -22,10 +22,15 @@ block content
 					a.btn.btn-secondary(href=`/download_psd/?psd_id=${m_screen.id}`) download psd
 					a.btn.btn-secondary(href=`/download_tif/?psd_id=${m_screen.id}`) download tif
 					br
-					if (`${type}` == 1)
-						div.mt-2
-							if (!origin_id)
-								a.btn.btn-secondary(href=`/designer/localize/?psd_id=${m_screen.id}`) localize
-							a.btn.btn-secondary(href=`/designer/modify/?psd_id=${m_screen.id}`) modify
+					if (m_screen.deleted)
+						p DELETED
+					else
+						if (`${type}` == 1)
+							div.mt-2
+								if (!origin_id)
+									a.btn.btn-secondary(href=`/designer/localize/?psd_id=${m_screen.id}`) localize
+								a.btn.btn-secondary(href=`/designer/modify/?psd_id=${m_screen.id}`) modify
+								if (m_author_id == m_user.id)
+									a.btn.btn-secondary(href=`/deletescreenshot/?psd_id=${m_screen.id}`) delete
 				div.col-sm
 					img.screenpic(src=`${m_screen.preview}`)

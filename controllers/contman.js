@@ -39,7 +39,7 @@ exports.POSTCreateMatrix = async (req, res) => {
 			create_time : now
 		}
 		await db.query('INSERT INTO pages SET ?', newpage);
-		res.redirect(`/modify/?page_id=${id}`);
+		res.redirect(`/contman/modify/?page_id=${id}`);
 	}
 	catch(err) {
 		res.send(err);

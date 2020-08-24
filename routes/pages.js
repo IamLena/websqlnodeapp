@@ -32,6 +32,7 @@ router.get('/download_psd', redirectLogin, PagesController.GETdownloadpsd);
 router.get('/download_tif', redirectLogin, PagesController.GETdownloadtif);
 router.get('/listofscreenlocals', redirectLogin, PagesController.GETlistofscreenlocals);
 router.get('/listofscreenversions', redirectLogin, PagesController.GETlistofscreenversions);
+router.get('/deletescreenshot', redirectLogin, PagesController.GETdeletescreen);
 
 router.get('/matrix', redirectLogin, PagesController.GETpage);
 router.post('/matrix', redirectLogin, PagesController.POSTpage);
