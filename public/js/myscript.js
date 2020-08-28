@@ -15,3 +15,10 @@ const changefile = (id, value) => {
 const hello = (tifid) => {
 	document.getElementById("input_tif_id").value = tifid;
 }
+
+const useorigin = (place_id, tif_id, lan_geo) => {
+	document.setting_local_placeholder.place_id.value=place_id;
+	document.setting_local_placeholder.tif_id.value=tif_id;
+	document.setting_local_placeholder.lan_geo.value=lan_geo;
+	document.getElementById('myform').submit();
+}

@@ -24,4 +24,6 @@ router.post('/publish', authed_contman_check, ContmanController.POSTpublish);
 router.get('/findtomodify', authed_contman_check, ContmanController.GETfindtomodify);
 router.post('/findtomodify', authed_contman_check, ContmanController.POSTfindtomodify);
 
+router.post('/localizeplace', authed_contman_check, ContmanController.POSTlocalizeplace)
+
 module.exports = router;
