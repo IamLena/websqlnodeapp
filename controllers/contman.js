@@ -175,7 +175,8 @@ exports.GETmodifypage = async (req, res) => {
 						select id as tif_id, psd_id, tif.preview as tif_preview, place_id
 						from tif
 						inner join local_placeholder
-						on tif.id = local_placeholder.tif_id) tmp3
+						on tif.id = local_placeholder.tif_id
+						and local_placeholder.lan_geo = '${req.session.user.lan_geo}') tmp3
 					on psd.id = tmp3.psd_id) tmp5
 				on tmp4.place_id = tmp5.place_id_l`);
 
@@ -234,13 +235,20 @@ exports.POSTlocalizeplace = async (req, res) => {
 			let localized_tifs = await db.query(`select id from tif where psd_id = '${localized_v1_psd_id}'`);
 			tif_id = localized_tifs[0].id;
 		}
-		new_local = {
-			place_id : place_id,
-			tif_id : tif_id,
-			lan_geo : lan_geo
+		const exists_pl = await db.query(`select * from local_placeholder where place_id = '${place_id}' and lan_geo = '${lan_geo}'`);
+		if (exists_pl.length == 0)
+		{
+			new_local = {
+				place_id : place_id,
+				tif_id : tif_id,
+				lan_geo : lan_geo
+			}
+			await db.query('insert into local_placeholder set ?', new_local);
 		}
-		await db.query('insert into local_placeholder set ?', new_local);
-		res.redirect(`/contman/modify/?page_id=${page_id}`)
+		else {
+			await db.query(`update local_placeholder set tif_id = '${tif_id}' where place_id = '${place_id}' and lan_geo = '${lan_geo}'`);
+		}
+		res.redirect(`/contman/modify/?page_id=${page_id}`);
 	}
 	catch(err) {
 		res.send(err);

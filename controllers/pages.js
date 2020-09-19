@@ -458,17 +458,7 @@ exports.GETpage = async (req, res) => {
 						on placeholder.id = place_page.place_id
 						and page_id = '${page_id}'
 						and deleted = 0) tmp2
-					on tmp1.origin_tif_id = tmp2.tif_id) tmp4
-				left join (
-					select psd_id as local_psd_id, tif_id as local_tif_id, tif_preview as local_tif_preview, content as local_tif_content, place_id as place_id_l
-					from psd
-					inner join (
-						select id as tif_id, psd_id, tif.preview as tif_preview, place_id
-						from tif
-						inner join local_placeholder
-						on tif.id = local_placeholder.tif_id) tmp3
-					on psd.id = tmp3.psd_id) tmp5
-				on tmp4.place_id = tmp5.place_id_l`);
+					on tmp1.origin_tif_id = tmp2.tif_id) tmp4`);
 
 			if (page.length > 0)
 			{
@@ -538,9 +528,9 @@ exports.POSTpage = async (req, res) => {
 						select id as tif_id, psd_id, tif.preview as tif_preview, place_id
 						from tif
 						inner join local_placeholder
-						on tif.id = local_placeholder.tif_id) tmp3
-					on psd.id = tmp3.psd_id
-                    and lan_geo='${lan}') tmp5
+						on tif.id = local_placeholder.tif_id
+                        and local_placeholder.lan_geo = '${picked_lan.lan_geo}') tmp3
+					on psd.id = tmp3.psd_id) tmp5
 				on tmp4.place_id = tmp5.place_id_l`);
 			if (page.length > 0)
 			{

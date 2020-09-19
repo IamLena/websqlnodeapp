@@ -87,6 +87,9 @@ const creatererender = async (req, res, code, content, height, width, ppi, lan_g
 			pickeddev = await db.query('select * from devices where nickname = ?', device);
 			if (pickeddev.length == 0) throw "pickeddev is empty";
 			pickeddev = pickeddev[0];
+			height = pickeddev.height;
+			width = pickeddev.width;
+			ppi = pickeddev.ppi;
 		}
 
 		res.render('designer/create', {
@@ -106,6 +109,7 @@ const creatererender = async (req, res, code, content, height, width, ppi, lan_g
 		});
 	}
 	catch(err) {
+		throw err;
 		res.send(err);
 	}
 	finally {
@@ -197,7 +201,10 @@ exports.POSTCreateRecord = async (req, res) => {
 		}
 		catch(err) {
 			if (err != "finish")
+			{
+				throw err;
 				res.send(err);
+			}
 		}
 		finally {
 			await db.close();

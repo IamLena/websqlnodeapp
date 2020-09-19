@@ -8,49 +8,50 @@ block content
 		br
 		a.linkfontstyle(href=`/listofpageversions/?page_id=${m_page.id}`) list of versions
 
-	table.table.table-sm.table-dark
-		thead
-			tr
-				form(action=`/matrix/?page_id=${m_page.id}`, method="post")
-					th(scope="col") link
-					th(scope="col") preview
-					th(scope="col") comment
-
-					th(scope="col") origin tif (#{m_author.lan})
-
-					th(scope="col")
-						select.dropdown.custom-select(name="lan" id="landrop" onchange="this.form.submit()")
-							if (picked_lan)
-								option(value=picked_lan.lan_geo) #{picked_lan.language} (#{picked_lan.country})
-							else
-								option(value="") language (country)
-							each item in m_lan
-								option(value=item.lan_geo) #{item.language} (#{item.country})
-		tbody
-			for row in m_rows
+	div.tableWrap
+		table.table.table-sm.table-dark
+			thead
 				tr
-					td
-						a.linkfontstyle(href=`${row.link}`) #{row.link}
-					td
-						img.smalimg(src=`${row.link}`)
-					td #{row.comment}
-					td
-						a.linkfontstyle(href=`/screenshot/?psd_id=${row.origin_psd_id}`) link
-						br
-						img.smalimg(src=`${row.origin_tif_preview}`)
-						br
-						| #{row.origin_tif_content}
+					form(action=`/matrix/?page_id=${m_page.id}`, method="post")
+						th(scope="col") link
+						th(scope="col") preview
+						th(scope="col") comment
 
-					td
-						if (picked_lan)
-							if (row.local_psd_id)
-								if (`${row.local_psd_id}` == `${row.origin_psd_id}`)
-									a.linkfontstyle(href=`/screenshot/?psd_id=${row.origin_psd_id}`) use #{m_author.lan}
+						th(scope="col") origin tif (#{m_author.lan})
+
+						th(scope="col")
+							select.dropdown.custom-select(name="lan" id="landrop" onchange="this.form.submit()")
+								if (picked_lan)
+									option(value=picked_lan.lan_geo) #{picked_lan.language} (#{picked_lan.country})
 								else
-									a.linkfontstyle(href=`/screenshot/?psd_id=${row.local_psd_id}`) link
-									br
-									img.smalimg(src=`${row.local_tif_preview}`)
-									br
-									| #{row.local_tif_content}
-							else
-								| undefined
+									option(value="") language (country)
+								each item in m_lan
+									option(value=item.lan_geo) #{item.language} (#{item.country})
+			tbody
+				for row in m_rows
+					tr
+						td
+							a.linkfontstyle(href=`${row.link}`) #{row.link}
+						td
+							img.smalimg(src=`${row.link}`)
+						td #{row.comment}
+						td
+							a.linkfontstyle(href=`/screenshot/?psd_id=${row.origin_psd_id}`) link
+							br
+							img.smalimg(src=`${row.origin_tif_preview}`)
+							br
+							| #{row.origin_tif_content}
+
+						td
+							if (picked_lan)
+								if (row.local_psd_id)
+									if (`${row.local_psd_id}` == `${row.origin_psd_id}`)
+										a.linkfontstyle(href=`/screenshot/?psd_id=${row.origin_psd_id}`) use #{m_author.lan}
+									else
+										a.linkfontstyle(href=`/screenshot/?psd_id=${row.local_psd_id}`) link
+										br
+										img.smalimg(src=`${row.local_tif_preview}`)
+										br
+										| #{row.local_tif_content}
+								else
+									| undefined
